@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import { GraduationCap, Menu, X, Shield, LogIn, UserPlus, LayoutDashboard, LogOut } from "lucide-react";
+import { Menu, X, Shield, LogIn, UserPlus, LayoutDashboard, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth"; 
@@ -11,7 +11,6 @@ const navLinks = [
   { name: "Home", href: "/" },
   { name: "Alumni", href: "/alumni" },
   { name: "Gallery", href: "/gallery" },
-  { name: "Events", href: "#events" }, // ✅ CHANGED HERE
   { name: "About Us", href: "/AboutUs" },
 ];
 
@@ -37,15 +36,6 @@ const Navbar = () => {
   }, []);
 
   const isActive = (path: string) => location.pathname === path;
-
-  // ✅ Smooth Scroll Function (NEW)
-  const handleScrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-    setIsMobileMenuOpen(false);
-  };
 
   return (
     <motion.nav
@@ -73,41 +63,26 @@ const Navbar = () => {
 
           {/* Desktop Nav */}
           <div className="hidden lg:flex items-center gap-8">
-            {navLinks.map((link) => {
-              // Only show "Events" button on Home page
-              if (link.name === "Events" && location.pathname !== "/") return null;
-
-              return link.href.startsWith("#") ? (
-                <button
-                  key={link.name}
-                  onClick={() => handleScrollToSection(link.href.replace("#", ""))}
-                  className={`font-medium transition-all duration-200 hover:text-gold relative ${
-                    isScrolled || isMobileMenuOpen ? "text-foreground" : "text-white"
-                  }`}
-                >
-                  {link.name}
-                </button>
-              ) : (
-                <Link
-                  key={link.name}
-                  to={link.href}
-                  className={`font-medium transition-all duration-200 hover:text-gold relative ${
-                    isScrolled || isMobileMenuOpen ? "text-foreground" : "text-white"
-                  } ${isActive(link.href) ? "text-gold" : ""}`}
-                >
-                  {link.name}
-                  {isActive(link.href) && (
-                    <motion.div
-                      layoutId="activeNav"
-                      className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gold"
-                    />
-                  )}
-                </Link>
-              );
-            })}
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                to={link.href}
+                className={`font-medium transition-all duration-200 hover:text-gold relative ${
+                  isScrolled || isMobileMenuOpen ? "text-foreground" : "text-white"
+                } ${isActive(link.href) ? "text-gold" : ""}`}
+              >
+                {link.name}
+                {isActive(link.href) && (
+                  <motion.div
+                    layoutId="activeNav"
+                    className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gold"
+                  />
+                )}
+              </Link>
+            ))}
           </div>
 
-          {/* Actions */}
+          {/* Desktop Actions */}
           <div className="hidden lg:flex items-center gap-4">
             {user ? (
               <>
@@ -150,11 +125,70 @@ const Navbar = () => {
           </div>
 
           {/* Mobile Toggle */}
-          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2">
+          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 z-50">
             {isMobileMenuOpen ? <X className="w-6 h-6 text-foreground" /> : <Menu className={`w-6 h-6 ${isScrolled ? "text-foreground" : "text-white"}`} />}
           </button>
         </div>
       </div>
+
+      {/* Mobile Menu with stronger frosted look */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="lg:hidden fixed top-20 left-4 right-4 z-40 bg-white/70 backdrop-blur-xl rounded-xl shadow-2xl border border-white/30 overflow-hidden"
+          >
+            <div className="flex flex-col py-6 px-6 gap-5">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  to={link.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-foreground font-semibold text-lg hover:text-gold transition-colors"
+                >
+                  {link.name}
+                </Link>
+              ))}
+
+              <hr className="border-white/40" />
+
+              {/* Auth Buttons */}
+              {user ? (
+                <>
+                  {isAdmin && (
+                    <Link to="/admin" className="text-foreground font-semibold text-lg hover:text-gold transition-colors">
+                      Admin
+                    </Link>
+                  )}
+                  {profile?.status === "approved" && (
+                    <Link to="/dashboard" className="text-foreground font-semibold text-lg hover:text-gold transition-colors">
+                      Dashboard
+                    </Link>
+                  )}
+                  <button
+                    onClick={handleSignOut}
+                    className="text-foreground font-semibold text-lg text-left hover:text-gold transition-colors"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" className="text-foreground font-semibold text-lg hover:text-gold transition-colors">
+                    Login
+                  </Link>
+                  <Link to="/register" className="text-foreground font-semibold text-lg hover:text-gold transition-colors">
+                    Register
+                  </Link>
+                </>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.nav>
   );
 };
