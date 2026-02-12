@@ -73,8 +73,11 @@ const Navbar = () => {
 
           {/* Desktop Nav */}
           <div className="hidden lg:flex items-center gap-8">
-            {navLinks.map((link) =>
-              link.href.startsWith("#") ? (
+            {navLinks.map((link) => {
+              // Only show "Events" button on Home page
+              if (link.name === "Events" && location.pathname !== "/") return null;
+
+              return link.href.startsWith("#") ? (
                 <button
                   key={link.name}
                   onClick={() => handleScrollToSection(link.href.replace("#", ""))}
@@ -100,11 +103,11 @@ const Navbar = () => {
                     />
                   )}
                 </Link>
-              )
-            )}
+              );
+            })}
           </div>
 
-          {/* Actions (UNCHANGED) */}
+          {/* Actions */}
           <div className="hidden lg:flex items-center gap-4">
             {user ? (
               <>
@@ -146,7 +149,7 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile Toggle (UNCHANGED) */}
+          {/* Mobile Toggle */}
           <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2">
             {isMobileMenuOpen ? <X className="w-6 h-6 text-foreground" /> : <Menu className={`w-6 h-6 ${isScrolled ? "text-foreground" : "text-white"}`} />}
           </button>
