@@ -1,24 +1,57 @@
 import { useAlumniMessage } from "@/hooks/useAlumniMessage";
+import { useState, useRef } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const Messages = () => {
   const { data, isLoading, error } = useAlumniMessage();
+  const [offset, setOffset] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   if (isLoading) return <p className="text-center py-10">Loading...</p>;
   if (error) return <p className="text-center py-10 text-red-500">Error loading messages</p>;
   if (!data || data.length === 0) return null;
 
-  const marqueeData = [...data, ...data];
+  const itemWidth = 360 + 24; // card width + gap
+  const totalItems = data.length;
+
+  const moveLeft = () => {
+    setOffset((prev) => Math.max(prev - 1, 0));
+  };
+
+  const moveRight = () => {
+    setOffset((prev) => Math.min(prev + 1, totalItems - 1));
+  };
 
   return (
-    <div className="w-full overflow-hidden py-10 bg-gray-50">
-      <div className="flex w-max animate-marquee gap-6 hover:[animation-play-state:paused]">
-        {marqueeData.map((alumni, index) => (
+    <div className="w-full overflow-hidden py-10 bg-gray-50 relative">
+      
+      {/* Left Button */}
+      <button
+        onClick={moveLeft}
+        className="absolute left-2 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white shadow hover:bg-gray-100 transition"
+      >
+        <ChevronLeft className="w-6 h-6 text-gray-700" />
+      </button>
+
+      {/* Right Button */}
+      <button
+        onClick={moveRight}
+        className="absolute right-2 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white shadow hover:bg-gray-100 transition"
+      >
+        <ChevronRight className="w-6 h-6 text-gray-700" />
+      </button>
+
+      <div
+        className="flex transition-transform duration-500 gap-6"
+        style={{ transform: `translateX(-${offset * itemWidth}px)` }}
+        ref={containerRef}
+      >
+        {data.map((alumni, index) => (
           <div
             key={index}
-            className="w-[360px] flex-shrink-0 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+            className="w-[360px] flex-shrink-0 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-md hover:scale-105"
           >
             <div className="flex items-center gap-4">
-              
               {/* AVATAR WITH SMALL PROFILE PIC */}
               <div className="relative">
                 {alumni.photo_url ? (
