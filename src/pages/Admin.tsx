@@ -32,7 +32,7 @@ import { T } from "vitest/dist/chunks/reporters.d.BFLkQcL6.js";
 import AdminAlumniHeroEditor from "@/components/admin/AdminAlumniHeroEditor";
 import ContentGalleryAdmin from "@/components/admin/ContentGalleryAdmin";
 import AdminEvents from "@/components/admin/AdminEvents";
-import AdminRoleManager from "@/components/admin/AdminAddForm";
+
 
 
 const Admin = () => {
@@ -161,10 +161,6 @@ const Admin = () => {
               <Shield className="w-4 h-4" />
               Events
             </TabsTrigger>
-            <TabsTrigger value="roles" className="w-full justify-start gap-2">
-              <Shield className="w-4 h-4" />
-              Role Management
-            </TabsTrigger>
           </TabsList>
 
           {/* RIGHT CONTENT */}
@@ -194,9 +190,6 @@ const Admin = () => {
               </TabsContent>
               <TabsContent value="events" className="mt-0">
                 <AdminEvents />
-              </TabsContent>
-              <TabsContent value="roles" className="mt-0">
-                <AdminRoleManager />
               </TabsContent>
 
             <TabsContent value="settings" className="mt-0">
