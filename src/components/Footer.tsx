@@ -12,7 +12,7 @@ import { motion } from "framer-motion";
 
 const Footer = () => {
   return (
-    <footer className="border-navy-dark text-slate-700 border-t border-slate-200 bg-black/20 backdrop-blur-sm">
+    <footer className="border  text-slate-700 border-t border-slate-200 bg-black/20 backdrop-blur-sm">
       <div className="container mx-auto px-6 py-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           
