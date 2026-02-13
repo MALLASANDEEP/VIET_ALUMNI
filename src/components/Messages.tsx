@@ -32,17 +32,13 @@ const Messages = () => {
                     {alumni.name.charAt(0)}
                   </div>
                 )}
-
-                {/* SMALL PROFILE PIC (BADGE) */}
                 <div className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-blue-600 text-white text-[10px] flex items-center justify-center ring-2 ring-white">
                   {alumni.name.charAt(0)}
                 </div>
               </div>
 
               <div className="overflow-hidden">
-                <h3 className="font-bold text-gray-900 truncate">
-                  {alumni.name}
-                </h3>
+                <h3 className="font-bold text-gray-900 truncate">{alumni.name}</h3>
                 <p className="text-xs text-gray-500 truncate">
                   {alumni.department} • {alumni.batch}
                 </p>
