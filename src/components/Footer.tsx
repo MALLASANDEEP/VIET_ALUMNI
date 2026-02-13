@@ -12,7 +12,7 @@ import { motion } from "framer-motion";
 
 const Footer = () => {
   return (
-    <footer className="border  text-slate-700 border-t border-slate-200 bg-black/20 backdrop-blur-sm">
+    <footer className="border border-t border-slate-200 bg-[#14334e] backdrop-blur-sm text-white">
       <div className="container mx-auto px-6 py-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           
@@ -23,14 +23,14 @@ const Footer = () => {
                 <GraduationCap className="w-6 h-6 text-navy-dark" />
               </div>
               <div>
-                <h3 className="font-serif text-lg font-bold text-slate-900">
+                <h3 className="font-serif text-lg font-bold text-white">
                   Alumni Visakha
                 </h3>
-                <p className="text-slate-500 text-xs">Est. 2008</p>
+                <p className="text-white/70 text-xs">Est. 2008</p>
               </div>
             </div>
 
-            <p className="text-slate-600 text-sm leading-relaxed">
+            <p className="text-white/70 text-sm leading-relaxed">
               Connecting generations of excellence. Building bridges between the
               past and future.
             </p>
@@ -38,7 +38,7 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-serif text-base font-semibold mb-4 text-slate-900">
+            <h4 className="font-serif text-base font-semibold mb-4 text-white">
               Quick Links
             </h4>
             <ul className="space-y-2 text-sm">
@@ -46,7 +46,7 @@ const Footer = () => {
                 <li key={link}>
                   <a
                     href="#"
-                    className="text-slate-600 hover:text-gold transition-colors"
+                    className="text-white/70 hover:text-gold transition-colors"
                   >
                     {link}
                   </a>
@@ -57,7 +57,7 @@ const Footer = () => {
 
           {/* Departments */}
           <div>
-            <h4 className="font-serif text-base font-semibold mb-4 text-slate-900">
+            <h4 className="font-serif text-base font-semibold mb-4 text-white">
               Departments
             </h4>
             <ul className="space-y-2 text-sm">
@@ -72,7 +72,7 @@ const Footer = () => {
                 <li key={dept}>
                   <a
                     href="#"
-                    className="text-slate-600 hover:text-gold transition-colors"
+                    className="text-white/70 hover:text-gold transition-colors"
                   >
                     {dept}
                   </a>
@@ -83,13 +83,13 @@ const Footer = () => {
 
           {/* Contact */}
           <div>
-            <h4 className="font-serif text-base font-semibold mb-4 text-slate-900">
+            <h4 className="font-serif text-base font-semibold mb-4 text-white">
               Contact Us
             </h4>
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 text-gold mt-0.5" />
-                <span className="text-slate-600">
+                <span className="text-white/70">
                   88th Division, Narava, GVMC,
                   Visakhapatnam, Andhra Pradesh 530027
                 </span>
@@ -97,14 +97,14 @@ const Footer = () => {
 
               <li className="flex items-center gap-3">
                 <Phone className="w-4 h-4 text-gold" />
-                <span className="text-slate-600">
+                <span className="text-white/70">
                   9959617476, 9959617477, 9550957054
                 </span>
               </li>
 
               <li className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-gold" />
-                <span className="text-slate-600">
+                <span className="text-white/70">
                   website@viet.edu.in
                 </span>
               </li>
@@ -117,7 +117,7 @@ const Footer = () => {
                   key={index}
                   href="https://www.viet.edu.in/"
                   whileHover={{ scale: 1.1, y: -2 }}
-                  className="w-9 h-9 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center hover:bg-gold hover:text-navy-dark transition"
+                  className="w-9 h-9 rounded-full bg-white/20 text-white flex items-center justify-center hover:bg-gold hover:text-navy-dark transition"
                 >
                   <Icon className="w-4 h-4" />
                 </motion.a>
@@ -126,18 +126,18 @@ const Footer = () => {
           </div>
         </div>
 
-        <hr className="border-slate-200 my-8" />
+        <hr className="border-white/30 my-8" />
 
         <div className="flex flex-col md:flex-row justify-between items-center gap-3 text-sm">
-          <p className="text-slate-500">
+          <p className="text-white/70">
             © 2026 Alumni Portal. All rights reserved.
           </p>
 
           <div className="flex gap-5">
-            <a href="#" className="text-slate-500 hover:text-gold transition">
+            <a href="#" className="text-white/70 hover:text-gold transition">
               Privacy Policy
             </a>
-            <a href="#" className="text-slate-500 hover:text-gold transition">
+            <a href="#" className="text-white/70 hover:text-gold transition">
               Terms of Service
             </a>
           </div>
