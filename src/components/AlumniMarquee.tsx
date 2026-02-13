@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Loader2, X, Linkedin, Mail, Briefcase, 
-  Building, ArrowRight, Compass 
+  Loader2, X, Linkedin, Building, ArrowRight, Compass
 } from "lucide-react";
 import { useAlumni } from "@/hooks/useAlumni";
 import { Link } from "react-router-dom"; 
@@ -54,14 +53,6 @@ const AlumniCard = ({ alumni, onClick }: { alumni: any; onClick: (alumni: any) =
              </p>
           </div>
         </div>
-
-        {alumni.lpa && (
-          <div className="flex flex-col items-end shrink-0">
-            <span className="text-indigo-600 font-black text-sm">
-              {alumni.lpa} <span className="text-[9px]">LPA</span>
-            </span>
-          </div>
-        )}
       </div>
       <div className="absolute bottom-0 left-0 h-1.5 bg-indigo-600 w-0 group-hover:w-full transition-all duration-500" />
     </div>
@@ -145,9 +136,7 @@ const AlumniMarquee = () => {
       {/* Marquee Row */}
       <div className="relative flex gap-4">
         <div
-          className={`flex ${
-            speedUp ? "animate-marquee-fast" : "animate-marquee"
-          } hover:[animation-play-state:paused]`}
+          className={`flex ${speedUp ? "animate-marquee-fast" : "animate-marquee"} hover:[animation-play-state:paused]`}
         >
           {[...alumniData, ...alumniData].map((alumni, index) => (
             <AlumniCard
@@ -207,10 +196,28 @@ const AlumniMarquee = () => {
                 <h2 className="text-2xl font-bold text-slate-900 mb-1">
                   {selectedAlumni.name}
                 </h2>
-                <p className="text-indigo-600 text-xs font-black uppercase tracking-widest mb-6">
+                <p className="text-indigo-600 text-xs font-black uppercase tracking-widest mb-2">
                   {selectedAlumni.department} • Class of {selectedAlumni.batch}
                 </p>
 
+                {/* Current Position & Company */}
+                {(selectedAlumni.current_position || selectedAlumni.company) && (
+                  <p className="text-sm text-slate-800 mb-2">
+                    <span className="font-bold">{selectedAlumni.current_position || "Professional"}</span>
+                    {selectedAlumni.company && (
+                      <span> at <span className="font-medium">{selectedAlumni.company}</span></span>
+                    )}
+                  </p>
+                )}
+
+                {/* Alumni Message / Bio */}
+                {selectedAlumni.message && (
+                  <p className="text-sm text-slate-700 italic mb-4">
+                    "{selectedAlumni.message}"
+                  </p>
+                )}
+
+                {/* Social Links */}
                 <div className="flex gap-3">
                   {selectedAlumni.linkedin && (
                     <a
@@ -219,14 +226,6 @@ const AlumniMarquee = () => {
                       className="flex-1 py-3 bg-[#0077b5] text-white rounded-xl flex items-center justify-center gap-2 text-sm font-bold"
                     >
                       <Linkedin className="w-4 h-4" /> LinkedIn
-                    </a>
-                  )}
-                  {selectedAlumni.email && (
-                    <a
-                      href={`mailto:${selectedAlumni.email}`}
-                      className="p-3 bg-slate-100 rounded-xl hover:bg-indigo-600 hover:text-white transition"
-                    >
-                      <Mail className="w-5 h-5" />
                     </a>
                   )}
                 </div>

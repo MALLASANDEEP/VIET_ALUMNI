@@ -1,7 +1,10 @@
 import { motion } from "framer-motion";
-import { X, Linkedin, Mail, Briefcase, GraduationCap, Quote } from "lucide-react";
+import { X, Linkedin, Briefcase, Quote } from "lucide-react";
 
 const AlumniDetailModal = ({ alumni, onClose }: { alumni: any; onClose: () => void }) => {
+  // Determine bio/message field
+  const bio = alumni.message || alumni.bio || alumni.description || "";
+
   return (
     <div
       className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4 backdrop-blur-sm"
@@ -23,7 +26,7 @@ const AlumniDetailModal = ({ alumni, onClose }: { alumni: any; onClose: () => vo
         </button>
 
         <div className="flex flex-col md:flex-row min-h-[500px]">
-          {/* Left Column: Image & Badge */}
+          {/* Left Column: Image */}
           <div className="w-full md:w-2/5 relative">
             {alumni.photo_url ? (
               <img
@@ -34,14 +37,6 @@ const AlumniDetailModal = ({ alumni, onClose }: { alumni: any; onClose: () => vo
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-gold/20 to-gold/40 flex items-center justify-center min-h-[300px]">
                 <span className="text-9xl font-bold text-gold">{alumni.name.charAt(0)}</span>
-              </div>
-            )}
-            
-            {/* LPA Badge Overlapping Image */}
-            {alumni.lpa && (
-              <div className="absolute bottom-6 left-6 right-6 bg-gold/90 backdrop-blur-md text-navy-dark p-4 rounded-2xl shadow-lg border border-white/20">
-                <p className="text-xs uppercase tracking-widest font-bold opacity-70">Annual Package</p>
-                <p className="text-3xl font-black">{alumni.lpa} LPA</p>
               </div>
             )}
           </div>
@@ -59,31 +54,30 @@ const AlumniDetailModal = ({ alumni, onClose }: { alumni: any; onClose: () => vo
               </div>
 
               <h2 className="text-5xl font-serif font-bold mb-4 text-foreground">{alumni.name}</h2>
-              
-              <div className="space-y-4 mb-8">
-                <div className="flex items-center gap-3 text-lg">
-                  <div className="p-2 rounded-lg bg-muted">
-                    <Briefcase className="w-5 h-5 text-gold" />
-                  </div>
-                  <p>
-                    <span className="font-bold">{alumni.current_position || "Professional"}</span>
-                    <span className="text-muted-foreground"> at </span>
-                    <span className="text-gold font-medium">{alumni.company || "Leading Firm"}</span>
-                  </p>
-                </div>
-              </div>
 
-              {/* Message / Bio Section */}
-              {alumni.message && (
+              {/* Bio / Message */}
+              {bio && (
                 <div className="relative p-6 bg-muted/30 rounded-2xl border-l-4 border-gold italic text-foreground/80 leading-relaxed mb-8">
                   <Quote className="absolute -top-3 -left-1 w-8 h-8 text-gold/20" />
-                  "{alumni.message}"
+                  "{bio}"
                 </div>
               )}
+
+              {/* Position & Company */}
+              <div className="flex items-center gap-3 text-lg">
+                <div className="p-2 rounded-lg bg-muted">
+                  <Briefcase className="w-5 h-5 text-gold" />
+                </div>
+                <p>
+                  <span className="font-bold">{alumni.current_position || "Professional"}</span>
+                  <span className="text-muted-foreground"> at </span>
+                  <span className="text-gold font-medium">{alumni.company || "Leading Firm"}</span>
+                </p>
+              </div>
             </div>
 
             {/* Social / Contact Actions */}
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4 mt-6">
               {alumni.linkedin && (
                 <a
                   href={alumni.linkedin}
@@ -93,14 +87,6 @@ const AlumniDetailModal = ({ alumni, onClose }: { alumni: any; onClose: () => vo
                 >
                   <Linkedin className="w-5 h-5" />
                   LinkedIn Profile
-                </a>
-              )}
-              {alumni.email && (
-                <a
-                  href={`mailto:${alumni.email}`}
-                  className="flex items-center justify-center gap-2 px-6 py-4 bg-muted text-foreground rounded-xl font-bold hover:bg-muted/80 transition-all"
-                >
-                  <Mail className="w-5 h-5" />
                 </a>
               )}
             </div>
