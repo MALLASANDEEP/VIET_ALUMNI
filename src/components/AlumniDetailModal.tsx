@@ -45,11 +45,11 @@ const AlumniDetailModal = ({ alumni, onClose }: { alumni: any; onClose: () => vo
           <div className="p-8 md:p-12 w-full md:w-3/5 text-foreground flex flex-col justify-between bg-card">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <span className="px-3 py-1 rounded-full bg-gold/10 text-gold text-xs font-bold uppercase tracking-tighter border border-gold/20">
+                <span className="px-3 py-1 rounded-full bg-red-400 text-white text-xs font-bold uppercase tracking-tighter border border-gold/20">
                   {alumni.department}
                 </span>
-                <span className="px-3 py-1 rounded-full bg-muted text-muted-foreground text-xs font-bold uppercase tracking-tighter">
-                  Class of {alumni.batch}
+                <span className="px-3 py-1  rounded-full bg-red-400 text-white text-xs font-bold uppercase tracking-tighter">
+                  {alumni.batch}
                 </span>
               </div>
 
@@ -71,7 +71,7 @@ const AlumniDetailModal = ({ alumni, onClose }: { alumni: any; onClose: () => vo
                 <p>
                   <span className="font-bold">{alumni.current_position || "Professional"}</span>
                   <span className="text-muted-foreground"> at </span>
-                  <span className="text-gold font-medium">{alumni.company || "Leading Firm"}</span>
+                  <span className="text-white rounded-2xl p-1 bg-red-400 font-medium">{alumni.company || "Leading Firm"}</span>
                 </p>
               </div>
             </div>

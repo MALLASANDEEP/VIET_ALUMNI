@@ -6,13 +6,13 @@ import {
   Loader2,
   Check,
   Building,
-  Banknote,
 } from "lucide-react";
 import { Input } from "../components/ui/input";
 import { useAlumni } from "@/hooks/useAlumni";
 import { useAlumniHero } from "@/hooks/useAlumniHero";
-import { useHero } from "@/hooks/useHero"; // ✅ background ONLY
+import { useHero } from "@/hooks/useHero";
 import Navbar from "@/components/Navbar";
+import AlumniDetailModal from "@/components/AlumniDetailModal";
 
 /* ---------------- CONSTANTS ---------------- */
 
@@ -39,18 +39,11 @@ const salaryRanges = [
 /* ---------------- COMPONENT ---------------- */
 
 const DepartmentFilter = () => {
-  /* ---------------- DATA ---------------- */
-
   const { data: alumniData, isLoading: alumniLoading } = useAlumni();
   const dbAlumni = alumniData?.alumni || [];
 
-  const { data: alumniHero, isLoading: alumniHeroLoading } =
-    useAlumniHero(); // text only
-
-  const { hero: homeHero, loading: homeHeroLoading } =
-    useHero(); // bg images only
-
-  /* ---------------- STATE ---------------- */
+  const { data: alumniHero, isLoading: alumniHeroLoading } = useAlumniHero();
+  const { hero: homeHero, loading: homeHeroLoading } = useHero();
 
   const [selectedDept, setSelectedDept] = useState("All");
   const [selectedBatch, setSelectedBatch] = useState("All");
@@ -58,17 +51,14 @@ const DepartmentFilter = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
-  /* ---------------- HERO BG SLIDER (GalleryHero model) ---------------- */
-
   const [bgIndex, setBgIndex] = useState(0);
+  const [selectedAlumni, setSelectedAlumni] = useState<any | null>(null); // for modal
 
   useEffect(() => {
     if (!homeHero?.bg_images || homeHero.bg_images.length === 0) return;
-
     const interval = setInterval(() => {
       setBgIndex((prev) => (prev + 1) % homeHero.bg_images.length);
     }, 5000);
-
     return () => clearInterval(interval);
   }, [homeHero?.bg_images]);
 
@@ -77,15 +67,10 @@ const DepartmentFilter = () => {
       ? homeHero.bg_images[bgIndex]
       : "/default-hero.jpg";
 
-  /* ---------------- HERO TEXT ---------------- */
-
   const heroTitle = alumniHero?.title || "VSPT Elite";
   const heroSubtitle =
-    alumniHero?.subtitle ||
-    "The premium directory of high-achieving alumni.";
+    alumniHero?.subtitle || "The premium directory of high-achieving alumni.";
   const applyUrl = alumniHero?.apply_url || "#";
-
-  /* ---------------- FILTER LOGIC ---------------- */
 
   const filteredAndSortedAlumni = dbAlumni
     .filter((alumni: any) => {
@@ -97,22 +82,17 @@ const DepartmentFilter = () => {
       const matchesSearch =
         alumni.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         alumni.company?.toLowerCase().includes(searchQuery.toLowerCase());
-
       return matchesDept && matchesBatch && matchesLPA && matchesSearch;
     })
     .sort((a: any, b: any) => (Number(b.lpa) || 0) - (Number(a.lpa) || 0));
 
-  /* ---------------- CUSTOM SELECT ---------------- */
-
   const CustomSelect = ({ label, value, options, onChange, id }: any) => {
     const isOpen = openDropdown === id;
-
     return (
       <div className="relative flex flex-col">
         <label className="text-[10px] uppercase tracking-widest font-black text-slate-400 mb-1 ml-1">
           {label}
         </label>
-
         <button
           onClick={() => setOpenDropdown(isOpen ? null : id)}
           className={`h-10 px-3 rounded-xl flex items-center justify-between border text-xs font-bold
@@ -124,12 +104,9 @@ const DepartmentFilter = () => {
         >
           {value}
           <ChevronDown
-            className={`w-3.5 h-3.5 transition ${
-              isOpen ? "rotate-180" : ""
-            }`}
+            className={`w-3.5 h-3.5 transition ${isOpen ? "rotate-180" : ""}`}
           />
         </button>
-
         <AnimatePresence>
           {isOpen && (
             <>
@@ -166,8 +143,6 @@ const DepartmentFilter = () => {
     );
   };
 
-  /* ---------------- LOADING ---------------- */
-
   if (alumniLoading || alumniHeroLoading || homeHeroLoading) {
     return (
       <div className="h-[60vh] flex items-center justify-center">
@@ -175,8 +150,6 @@ const DepartmentFilter = () => {
       </div>
     );
   }
-
-  /* ---------------- RENDER ---------------- */
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
@@ -190,7 +163,6 @@ const DepartmentFilter = () => {
           alt="Hero background"
         />
         <div className="absolute inset-0 bg-black/50" />
-
         <div className="relative z-10 mb-20 ml-10 max-w-2xl">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
@@ -199,7 +171,6 @@ const DepartmentFilter = () => {
           >
             {heroTitle}
           </motion.h1>
-
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -208,7 +179,6 @@ const DepartmentFilter = () => {
           >
             {heroSubtitle}
           </motion.p>
-
           <motion.a
             href={applyUrl}
             target="_blank"
@@ -275,48 +245,57 @@ const DepartmentFilter = () => {
         </div>
 
         {/* ALUMNI GRID */}
-        <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <AnimatePresence>
             {filteredAndSortedAlumni.map((alumni: any) => (
               <motion.div
                 key={alumni.id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                whileHover={{ y: -5 }}
-                className="bg-white rounded-2xl overflow-hidden border shadow-sm hover:shadow-xl"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                whileHover={{
+                  scale: 1.05,
+                  boxShadow: "0 20px 40px rgba(0,0,0,0.15)",
+                }}
+                className="bg-white rounded-xl overflow-hidden border border-slate-200 cursor-pointer flex items-center gap-4 p-3 transition-all"
+                onClick={() => setSelectedAlumni(alumni)} // open modal
               >
-                <div className="relative h-48">
+                {/* Profile Image */}
+                <div className="flex-shrink-0 w-16 h-16 rounded-full overflow-hidden border border-slate-200">
                   {alumni.photo_url ? (
                     <img
                       src={alumni.photo_url}
-                      className="w-full h-full object-cover"
                       alt={alumni.name}
+                      className="w-full h-full object-cover object-center"
                     />
                   ) : (
-                    <div className="h-full flex items-center justify-center text-4xl text-slate-300 font-bold">
+                    <div className="w-full h-full bg-slate-100 flex items-center justify-center text-xl font-bold text-slate-400">
                       {alumni.name[0]}
                     </div>
                   )}
                 </div>
 
-                <div className="p-4 space-y-2">
-                  <h3 className="font-bold">{alumni.name}</h3>
-                  <div className="flex items-center justify-between text-xs text-slate-500">
-                    <span className="flex items-center gap-1">
-                      <Building className="w-3 h-3" />
-                      {alumni.company || "Elite Network"}
-                    </span>
-                    <span className="flex items-center gap-1 text-indigo-600 font-bold">
-                      <Banknote className="w-3 h-3" />
-                      {alumni.lpa ? `${alumni.lpa} LPA` : "Premium"}
-                    </span>
-                  </div>
+                {/* Name & Company */}
+                <div className="flex flex-col justify-center">
+                  <h3 className="font-semibold text-base text-slate-900">
+                    {alumni.name}
+                  </h3>
+                  <p className="text-sm text-slate-500">
+                    {alumni.company || "Elite Network"}
+                  </p>
                 </div>
               </motion.div>
             ))}
           </AnimatePresence>
         </div>
       </main>
+
+      {/* MODAL */}
+      {selectedAlumni && (
+        <AlumniDetailModal
+          alumni={selectedAlumni}
+          onClose={() => setSelectedAlumni(null)}
+        />
+      )}
     </div>
   );
 };
