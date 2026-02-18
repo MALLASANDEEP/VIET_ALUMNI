@@ -17,6 +17,8 @@ export interface Alumni {
   message: string | null;
   created_at: string;
   updated_at?: string;
+  status?: string;
+  roll_no?: string;
 }
 
 export interface AlumniInsert {
@@ -64,7 +66,9 @@ export const useAlumni = () => {
         lpa: item.lpa ?? null,
         message: item.message ?? null,
         created_at: item.created_at,
-        updated_at: item.updated_at
+        updated_at: item.updated_at,
+        status: item.status ?? null,
+        roll_no: item.roll_no ?? null
       }));
 
       return {

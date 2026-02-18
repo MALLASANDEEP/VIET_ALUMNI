@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { GraduationCap, Mail, Lock, User, Phone, Building, Calendar, Loader2, ArrowLeft, UserCheck, Users } from "lucide-react";
+import { 
+  GraduationCap, Mail, Lock, User, Phone, Building, 
+  Calendar, Loader2, ArrowLeft, UserCheck, Users, 
+  Hash, Banknote, Linkedin 
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,20 +16,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCreateProfile } from "@/hooks/useProfile";
 
 const departments = [
-  "Computer Science(CSE)",
- "Data Science(DS)",
- "Cybersecurity(CS)",
- "AI &ML",
-  "Mechanical(MECH)",
-  "Civil",
-  "Electronics Communication(ECE)",
-  "Chemical",
-  "Automobile",
-  "Electrical & Electronics(EEE)",
-  "MBA",
-  "MCA",
-  "BBA",
-  "BCA",
+  "Computer Science(CSE)", "Data Science(DS)", "Cybersecurity(CS)", "AI &ML",
+  "Mechanical(MECH)", "Civil", "Electronics Communication(ECE)", "Chemical",
+  "Automobile", "Electrical & Electronics(EEE)", "MBA", "MCA", "BBA", "BCA",
 ];
 
 const Register = () => {
@@ -45,6 +38,9 @@ const Register = () => {
     company: "",
     currentPosition: "",
     requestedRole: "" as "student" | "alumni" | "",
+    rollNo: "",
+    lpa: "",
+    linkedin: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -69,7 +65,6 @@ const Register = () => {
     try {
       await signUp(formData.email, formData.password);
       
-      // Get the user after signup
       const { data: { user } } = await (await import("@/integrations/supabase/client")).supabase.auth.getUser();
       
       if (user) {
@@ -83,6 +78,9 @@ const Register = () => {
           company: formData.company || undefined,
           current_position: formData.currentPosition || undefined,
           requested_role: formData.requestedRole,
+          roll_no: formData.rollNo || undefined,
+          lpa: formData.lpa ? parseFloat(formData.lpa) : undefined,
+          linkedin_url: formData.linkedin || undefined,
         });
       }
       
@@ -120,9 +118,7 @@ const Register = () => {
               <GraduationCap className="w-8 h-8 text-navy-dark" />
             </div>
             <CardTitle className="font-serif text-2xl">Join Alumni Portal</CardTitle>
-            <CardDescription>
-              Register as a student or alumni member
-            </CardDescription>
+            <CardDescription>Register as a student or alumni member</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -131,11 +127,7 @@ const Register = () => {
                 <button
                   type="button"
                   onClick={() => setFormData(prev => ({ ...prev, requestedRole: "student" }))}
-                  className={`p-4 rounded-xl border-2 transition-all ${
-                    formData.requestedRole === "student"
-                      ? "border-gold bg-gold/10"
-                      : "border-border hover:border-gold/50"
-                  }`}
+                  className={`p-4 rounded-xl border-2 transition-all ${formData.requestedRole === "student" ? "border-gold bg-gold/10" : "border-border hover:border-gold/50"}`}
                 >
                   <Users className={`w-8 h-8 mx-auto mb-2 ${formData.requestedRole === "student" ? "text-gold" : "text-muted-foreground"}`} />
                   <p className="font-semibold">Student</p>
@@ -144,11 +136,7 @@ const Register = () => {
                 <button
                   type="button"
                   onClick={() => setFormData(prev => ({ ...prev, requestedRole: "alumni" }))}
-                  className={`p-4 rounded-xl border-2 transition-all ${
-                    formData.requestedRole === "alumni"
-                      ? "border-gold bg-gold/10"
-                      : "border-border hover:border-gold/50"
-                  }`}
+                  className={`p-4 rounded-xl border-2 transition-all ${formData.requestedRole === "alumni" ? "border-gold bg-gold/10" : "border-border hover:border-gold/50"}`}
                 >
                   <UserCheck className={`w-8 h-8 mx-auto mb-2 ${formData.requestedRole === "alumni" ? "text-gold" : "text-muted-foreground"}`} />
                   <p className="font-semibold">Alumni</p>
@@ -162,29 +150,31 @@ const Register = () => {
                   <Label htmlFor="fullName">Full Name *</Label>
                   <div className="relative mt-1">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      id="fullName"
-                      value={formData.fullName}
-                      onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
-                      placeholder="John Doe"
-                      className="pl-10"
-                      required
-                    />
+                    <Input id="fullName" value={formData.fullName} onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))} placeholder="John Doe" className="pl-10" required />
                   </div>
                 </div>
+                <div>
+                  <Label htmlFor="rollNo">Roll Number *</Label>
+                  <div className="relative mt-1">
+                    <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input id="rollNo" value={formData.rollNo} onChange={(e) => setFormData(prev => ({ ...prev, rollNo: e.target.value }))} placeholder="e.g. 20XX1A05XX" className="pl-10" required />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="email">Email *</Label>
                   <div className="relative mt-1">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                      placeholder="you@example.com"
-                      className="pl-10"
-                      required
-                    />
+                    <Input id="email" type="email" value={formData.email} onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))} placeholder="you@example.com" className="pl-10" required />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="phone">Phone</Label>
+                  <div className="relative mt-1">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input id="phone" value={formData.phone} onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))} placeholder="+1 234 567 890" className="pl-10" />
                   </div>
                 </div>
               </div>
@@ -194,126 +184,80 @@ const Register = () => {
                   <Label htmlFor="password">Password *</Label>
                   <div className="relative mt-1">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      id="password"
-                      type="password"
-                      value={formData.password}
-                      onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                      placeholder="••••••••"
-                      className="pl-10"
-                      required
-                    />
+                    <Input id="password" type="password" value={formData.password} onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))} placeholder="••••••••" className="pl-10" required />
                   </div>
                 </div>
                 <div>
                   <Label htmlFor="confirmPassword">Confirm Password *</Label>
                   <div className="relative mt-1">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      value={formData.confirmPassword}
-                      onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                      placeholder="••••••••"
-                      className="pl-10"
-                      required
-                    />
+                    <Input id="confirmPassword" type="password" value={formData.confirmPassword} onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))} placeholder="••••••••" className="pl-10" required />
                   </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="phone">Phone</Label>
-                  <div className="relative mt-1">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      id="phone"
-                      value={formData.phone}
-                      onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                      placeholder="+1 234 567 890"
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-                <div>
                   <Label htmlFor="department">Department</Label>
-                  <Select
-                    value={formData.department}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, department: value }))}
-                  >
+                  <Select value={formData.department} onValueChange={(value) => setFormData(prev => ({ ...prev, department: value }))}>
                     <SelectTrigger className="mt-1">
                       <SelectValue placeholder="Select department" />
                     </SelectTrigger>
                     <SelectContent>
-                      {departments.map((dept) => (
-                        <SelectItem key={dept} value={dept}>{dept}</SelectItem>
-                      ))}
+                      {departments.map((dept) => <SelectItem key={dept} value={dept}>{dept}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="batch">Batch/Year</Label>
                   <div className="relative mt-1">
                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      id="batch"
-                      value={formData.batch}
-                      onChange={(e) => setFormData(prev => ({ ...prev, batch: e.target.value }))}
-                      placeholder="2020"
-                      className="pl-10"
-                    />
+                    <Input id="batch" value={formData.batch} onChange={(e) => setFormData(prev => ({ ...prev, batch: e.target.value }))} placeholder="2020" className="pl-10" />
                   </div>
                 </div>
-                {formData.requestedRole === "alumni" && (
-                  <div>
-                    <Label htmlFor="company">Current Company</Label>
-                    <div className="relative mt-1">
-                      <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="company"
-                        value={formData.company}
-                        onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}
-                        placeholder="Google, Microsoft..."
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-                )}
               </div>
 
+              {/* Alumni Specific Fields */}
               {formData.requestedRole === "alumni" && (
-                <div>
-                  <Label htmlFor="currentPosition">Current Position</Label>
-                  <Input
-                    id="currentPosition"
-                    value={formData.currentPosition}
-                    onChange={(e) => setFormData(prev => ({ ...prev, currentPosition: e.target.value }))}
-                    placeholder="Software Engineer, Manager..."
-                    className="mt-1"
-                  />
-                </div>
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-4 pt-2 border-t">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="company">Current Company</Label>
+                      <div className="relative mt-1">
+                        <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input id="company" value={formData.company} onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))} placeholder="Google, Microsoft..." className="pl-10" />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="currentPosition">Current Position</Label>
+                      <Input id="currentPosition" value={formData.currentPosition} onChange={(e) => setFormData(prev => ({ ...prev, currentPosition: e.target.value }))} placeholder="Software Engineer..." className="mt-1" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="lpa">LPA (Salary)</Label>
+                      <div className="relative mt-1">
+                        <Banknote className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input id="lpa" type="number" value={formData.lpa} onChange={(e) => setFormData(prev => ({ ...prev, lpa: e.target.value }))} placeholder="12.5" className="pl-10" />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="linkedin">LinkedIn Profile URL</Label>
+                      <div className="relative mt-1">
+                        <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input id="linkedin" type="url" value={formData.linkedin} onChange={(e) => setFormData(prev => ({ ...prev, linkedin: e.target.value }))} placeholder="https://linkedin.com/in/..." className="pl-10" />
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
               )}
 
               <Button type="submit" className="w-full btn-gold" disabled={loading}>
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Creating Account...
-                  </>
-                ) : (
-                  "Register"
-                )}
+                {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Creating Account...</> : "Register"}
               </Button>
 
               <p className="text-center text-sm text-muted-foreground">
-                Already have an account?{" "}
-                <Link to="/login" className="text-gold hover:underline">
-                  Sign In
-                </Link>
+                Already have an account? <Link to="/login" className="text-gold hover:underline">Sign In</Link>
               </p>
             </form>
           </CardContent>

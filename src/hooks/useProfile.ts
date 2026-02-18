@@ -19,6 +19,8 @@ export interface Profile {
   requested_role: "student" | "alumni";
   created_at: string;
   updated_at: string;
+  roll_no: string | null;
+  lpa: number | null;
 }
 
 export const useProfile = () => {
@@ -56,6 +58,8 @@ export const useCreateProfile = () => {
       current_position?: string;
       linkedin_url?: string;
       requested_role: "student" | "alumni";
+      roll_no?: string;
+      lpa?: number;
     }) => {
       const { data, error } = await supabase
         .from("profiles")
