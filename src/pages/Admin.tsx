@@ -32,6 +32,7 @@ import { T } from "vitest/dist/chunks/reporters.d.BFLkQcL6.js";
 import AdminAlumniHeroEditor from "@/components/admin/AdminAlumniHeroEditor";
 import ContentGalleryAdmin from "@/components/admin/ContentGalleryAdmin";
 import AdminEvents from "@/components/admin/AdminEvents";
+import  AdminManageAdmins from "@/components/admin/AdminAddForm";
 
 
 
@@ -161,6 +162,10 @@ const Admin = () => {
               <Shield className="w-4 h-4" />
               Events
             </TabsTrigger>
+            <TabsTrigger value="manageadmins" className="w-full justify-start gap-2">
+              <Shield className="w-4 h-4" />
+              Manage Admins
+            </TabsTrigger>
           </TabsList>
 
           {/* RIGHT CONTENT */}
@@ -191,6 +196,9 @@ const Admin = () => {
               <TabsContent value="events" className="mt-0">
                 <AdminEvents />
               </TabsContent>
+              <TabsContent value="manageadmins" className="mt-0">
+                <AdminManageAdmins />
+              </TabsContent>  
 
             <TabsContent value="settings" className="mt-0">
               <Card>

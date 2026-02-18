@@ -14,7 +14,7 @@ const AdminAlumniHeroEditor = () => {
     const fetchHero = async () => {
       setLoading(true);
       const { data, error } = await supabase
-        .from("alumni_hero")
+        .from("alumni_hero" as any)
         .select("*")
         .single<AlumniHero>();
 

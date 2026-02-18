@@ -1,78 +1,174 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { useAddAdmin } from "@/hooks/useAddAdmin";
 
-type UserProfile = {
-  id: string;
+type AdminUser = {
+  user_id: string;
   email: string;
-  role: "admin" | "student" | "alumni" | "user";
+  full_name: string | null;
 };
 
-const AdminRoleManager = () => {
-  const [users, setUsers] = useState<UserProfile[]>([]);
+const AdminManageAdmins = () => {
+  const { addAdmin, deleteAdmin, loading, error, success } = useAddAdmin();
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [admins, setAdmins] = useState<AdminUser[]>([]);
+  const [fetching, setFetching] = useState(false);
 
-  const fetchUsers = async () => {
-    const { data, error } = await supabase
-      .from("profiles" as any)
-      .select("id, email, role");
+  // ✅ Fetch existing admins properly (NO JOIN)
+  const fetchAdmins = async () => {
+    setFetching(true);
 
-    if (error) {
-      console.error(error);
-      return;
+    try {
+      // 1️⃣ Get admin user IDs
+      const { data: rolesData, error: rolesError } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "admin");
+
+      if (rolesError) throw rolesError;
+
+      if (!rolesData || rolesData.length === 0) {
+        setAdmins([]);
+        setFetching(false);
+        return;
+      }
+
+      const userIds = rolesData.map((r) => r.user_id);
+
+      // 2️⃣ Fetch matching profiles
+      const { data: profilesData, error: profilesError } = await supabase
+        .from("profiles")
+        .select("user_id, email, full_name")
+        .in("user_id", userIds);
+
+      if (profilesError) throw profilesError;
+
+      setAdmins(profilesData || []);
+    } catch (err) {
+      console.error("Fetch Admins Error:", err);
     }
 
-    // Cast data to UserProfile[]
-    setUsers((data as unknown as UserProfile[]) || []);
+    setFetching(false);
   };
 
-  const makeAdmin = async (id: string) => {
-    await supabase
-      .from("profiles")
-      .update({ role: "admin" } as any) // cast to any to avoid TS error
-      .eq("id", id);
-    fetchUsers();
+  useEffect(() => {
+    fetchAdmins();
+  }, []);
+
+  // ✅ Handle Add Admin
+  const handleAddAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await addAdmin(email, password, fullName);
+    setEmail("");
+    setPassword("");
+    setFullName("");
+    fetchAdmins();
   };
 
-  const removeAdmin = async (id: string) => {
-    await supabase
-      .from("profiles")
-      .update({ role: "user" } as any) // cast to any
-      .eq("id", id);
-    fetchUsers();
+  // ✅ Handle Delete
+  const handleDelete = async (userId: string) => {
+    await deleteAdmin(userId);
+    fetchAdmins();
   };
 
   return (
-    <div className="space-y-4">
-      {users.map((user) => (
-        <Card key={user.id}>
-          <CardContent className="flex justify-between items-center p-4">
-            <div>
-              <p className="font-medium">{user.email}</p>
-              <p className="text-sm">Role: {user.role}</p>
-            </div>
+    <div className="min-h-screen bg-gray-100 p-8">
+      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-xl p-6">
+        <h1 className="text-2xl font-bold mb-6">Manage Admins</h1>
 
-            {user.role === "admin" ? (
-              <Button
-                variant="destructive"
-                onClick={() => removeAdmin(user.id)}
+        {/* Add Admin Form */}
+        <form onSubmit={handleAddAdmin} className="space-y-4 mb-8">
+          <div>
+            <label className="block font-medium">Full Name</label>
+            <input
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              className="w-full border p-2 rounded"
+              placeholder="Enter full name"
+            />
+          </div>
+
+          <div>
+            <label className="block font-medium">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full border p-2 rounded"
+              placeholder="Enter email"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block font-medium">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full border p-2 rounded"
+              placeholder="Enter password"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
+          >
+            {loading ? "Adding..." : "Add Admin"}
+          </button>
+        </form>
+
+        {/* Status Messages */}
+        {error && (
+          <div className="mb-4 text-red-600 font-medium">{error}</div>
+        )}
+        {success && (
+          <div className="mb-4 text-green-600 font-medium">{success}</div>
+        )}
+
+        {/* Admin List */}
+        <h2 className="text-xl font-semibold mb-4">Existing Admins</h2>
+
+        {fetching ? (
+          <p>Loading admins...</p>
+        ) : admins.length === 0 ? (
+          <p>No admins found.</p>
+        ) : (
+          <div className="space-y-3">
+            {admins.map((admin) => (
+              <div
+                key={admin.user_id}
+                className="flex justify-between items-center border p-3 rounded"
               >
-                Remove Admin
-              </Button>
-            ) : (
-              <Button onClick={() => makeAdmin(user.id)}>
-                Make Admin
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      ))}
+                <div>
+                  <p className="font-medium">
+                    {admin.full_name || "No Name"}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {admin.email}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => handleDelete(admin.user_id)}
+                  className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700 transition"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
-export default AdminRoleManager;
+export default AdminManageAdmins;

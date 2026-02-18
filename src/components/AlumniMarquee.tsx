@@ -182,7 +182,13 @@ const AlumniMarquee = () => {
                 <X className="w-5 h-5" />
               </button>
 
-              <div className="relative h-32 bg-indigo-600">
+              {/* Modal Top with Logo Blur */}
+              <div className="relative h-32 overflow-hidden">
+                <img
+                  src="https://www.viet.edu.in/img/header-imgs/viet-logo.svg"
+                  alt="Logo Background"
+                  className="w-full h-full object-cover filter blur-sm opacity-40"
+                />
                 <div className="absolute -bottom-12 left-8">
                   <img
                     src={selectedAlumni.photo_url || ""}
@@ -200,7 +206,6 @@ const AlumniMarquee = () => {
                   {selectedAlumni.department} • Class of {selectedAlumni.batch}
                 </p>
 
-                {/* Current Position & Company */}
                 {(selectedAlumni.current_position || selectedAlumni.company) && (
                   <p className="text-sm text-slate-800 mb-2">
                     <span className="font-bold">{selectedAlumni.current_position || "Professional"}</span>
@@ -210,14 +215,12 @@ const AlumniMarquee = () => {
                   </p>
                 )}
 
-                {/* Alumni Message / Bio */}
                 {selectedAlumni.message && (
                   <p className="text-sm text-slate-700 italic mb-4">
                     "{selectedAlumni.message}"
                   </p>
                 )}
 
-                {/* Social Links */}
                 <div className="flex gap-3">
                   {selectedAlumni.linkedin && (
                     <a

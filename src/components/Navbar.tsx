@@ -52,7 +52,7 @@ const Navbar = () => {
 
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className={`transition-all duration-300 rounded-md ${isScrolled ? "bg-black/30 p-1" : ""}`}>
+            <div className={`transition-all duration-300 rounded-md ${isScrolled ? "bg-orange-500/30 p-1" : ""}`}>
               <img
                 src="https://www.viet.edu.in/img/header-imgs/viet-logo.svg"
                 alt="VIET Logo"
