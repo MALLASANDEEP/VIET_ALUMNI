@@ -17,7 +17,8 @@ const AlumniCard = ({ alumni, onClick }: { alumni: any; onClick: (alumni: any) =
         <img
           src={alumni.photo_url}
           alt={alumni.name}
-          className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
+          loading="lazy"
+          className="w-full h-full object-cover object-center transition-transform duration-1000 group-hover:scale-110"
         />
       ) : (
         <div className="w-full h-full flex items-center justify-center bg-slate-800 text-slate-500 text-6xl font-bold">
@@ -85,7 +86,6 @@ const AlumniMarquee = () => {
   return (
     <section className="pt-6 pb-20 bg-[#f8fafc] overflow-hidden relative">
       
-      {/* Header */}
       <div className="container mx-auto px-6 mb-16 relative">
         <div className="text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight">
@@ -114,7 +114,6 @@ const AlumniMarquee = () => {
         </div>
       </div>
 
-      {/* Marquee Row */}
       <div className="relative flex gap-4">
         <div
           className={`flex ${speedUp ? "animate-marquee-fast" : "animate-marquee"} hover:[animation-play-state:paused]`}
@@ -129,7 +128,6 @@ const AlumniMarquee = () => {
         </div>
       </div>
 
-      {/* Mobile Explore */}
       <div className="mt-10 flex justify-center md:hidden">
         <Link
           to="/alumni"
@@ -139,89 +137,117 @@ const AlumniMarquee = () => {
         </Link>
       </div>
 
-      {/* Modal */}
       <AnimatePresence>
         {selectedAlumni && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[100] flex items-center justify-center p-6"
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-[100] flex items-center justify-center p-6"
             onClick={() => setSelectedAlumni(null)}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              initial={{ scale: 0.95, opacity: 0, y: 30 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-white rounded-[2.5rem] max-w-md w-full relative overflow-hidden shadow-2xl max-h-[90vh]"
+              exit={{ scale: 0.95, opacity: 0, y: 30 }}
+              className="bg-white rounded-[3rem] max-w-lg w-full relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)] max-h-[90vh] border border-white/20"
               onClick={(e) => e.stopPropagation()}
             >
+              {/* Close Button */}
               <button
                 onClick={() => setSelectedAlumni(null)}
-                className="absolute top-5 right-5 z-30 p-2 rounded-full bg-slate-100 text-slate-900 hover:bg-indigo-600 hover:text-white transition-all"
+                className="absolute top-6 left-6 z-50 p-2.5 rounded-full bg-white/40 backdrop-blur-md text-slate-900 border border-white/40 hover:bg-red-500 hover:text-white transition-all shadow-sm"
               >
                 <X className="w-5 h-5" />
               </button>
 
-              {/* Modal Top */}
-              <div className="relative h-48 overflow-hidden bg-slate-100 flex items-center justify-center">
-                <img
-                  src="https://www.viet.edu.in/img/header-imgs/viet-logo.svg"
-                  alt="Logo Background"
-                  className="w-full h-full object-contain p-6 filter blur-md opacity-30"
-                />
+              {/* Glassy Header Section */}
+              <div className="relative h-48 overflow-visible bg-slate-50 flex items-center px-10">
+                {/* Visual Depth Blobs */}
+                <div className="absolute top-[-10%] left-[-5%] w-64 h-64 bg-indigo-200 rounded-full blur-3xl opacity-40 animate-pulse" />
+                <div className="absolute bottom-0 right-0 w-48 h-48 bg-blue-100 rounded-full blur-3xl opacity-50" />
 
-                <div className="absolute -bottom-12 left-8">
-                  <div className="w-24 h-24 rounded-3xl border-4 border-white shadow-xl bg-slate-100 overflow-hidden">
-                    {selectedAlumni.photo_url ? (
-                      <img
-                        src={selectedAlumni.photo_url}
-                        alt={selectedAlumni.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-slate-500">
-                        {selectedAlumni.name?.charAt(0)}
-                      </div>
-                    )}
+                {/* College Logo (Bottom Layer) */}
+                <div className="relative z-10 w-full opacity-60 grayscale-[0.5]">
+                  <img
+                    src="https://www.viet.edu.in/img/header-imgs/viet-logo.svg"
+                    alt="College Logo"
+                    className="max-h-24 w-auto object-contain"
+                  />
+                </div>
+
+                {/* Profile Image (Top Layer - Overlapping Logo) */}
+                <div className="absolute bottom-2 right-10 z-40 transform translate-y-1/2">
+                  <div className="relative p-1.5 bg-white/30 backdrop-blur-2xl rounded-[2.8rem] shadow-2xl border border-white/50 ring-1 ring-black/5">
+                    <div className="w-36 h-36 rounded-[2.4rem] bg-white overflow-hidden shadow-inner">
+                      {selectedAlumni.photo_url ? (
+                        <img
+                          src={selectedAlumni.photo_url}
+                          alt={selectedAlumni.name}
+                          loading="eager"
+                          className="w-full h-full object-cover object-center scale-105"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-5xl font-bold text-slate-200 bg-slate-50">
+                          {selectedAlumni.name?.charAt(0)}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-16 p-8 overflow-y-auto">
-                <h2 className="text-2xl font-bold text-slate-900 mb-1">
-                  {selectedAlumni.name}
-                </h2>
-                <p className="text-indigo-600 text-xs font-black uppercase tracking-widest mb-2">
-                  {selectedAlumni.department} • Class of {selectedAlumni.batch}
-                </p>
-
-                {(selectedAlumni.current_position || selectedAlumni.company) && (
-                  <p className="text-sm text-slate-800 mb-2">
-                    <span className="font-bold">
-                      {selectedAlumni.current_position || "Professional"}
+              {/* Content Area */}
+              <div className="pt-24 p-10 overflow-y-auto bg-white">
+                <div className="mb-8">
+                  <h2 className="text-3xl font-black text-slate-900 mb-2 tracking-tight">
+                    {selectedAlumni.name}
+                  </h2>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="bg-indigo-600 text-white text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest">
+                      {selectedAlumni.department}
                     </span>
-                    {selectedAlumni.company && (
-                      <span> at <span className="font-medium">{selectedAlumni.company}</span></span>
-                    )}
-                  </p>
-                )}
+                    <span className="bg-slate-100 text-slate-500 text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest border border-slate-200">
+                      Batch of {selectedAlumni.batch}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-4 mb-10">
+                  {(selectedAlumni.current_position || selectedAlumni.company) && (
+                    <div className="flex items-center gap-5 p-5 bg-gradient-to-r from-slate-50 to-transparent rounded-[2rem] border border-slate-100 transition-hover hover:border-indigo-100">
+                      <div className="flex-shrink-0 w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center border border-slate-100">
+                        <Building className="w-6 h-6 text-indigo-600" />
+                      </div>
+                      <div>
+                        <p className="text-[13px] font-black text-slate-400 uppercase tracking-tighter mb-0.5">Current Role</p>
+                        <p className="text-base font-bold text-slate-900 leading-tight">
+                          {selectedAlumni.current_position || "Professional"} 
+                          <span className="text-indigo-600 ml-1">@ {selectedAlumni.company || "Industry Leader"}</span>
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 {selectedAlumni.message && (
-                  <p className="text-sm text-slate-700 italic mb-4">
-                    "{selectedAlumni.message}"
-                  </p>
+                  <div className="relative mb-10 pl-4 border-l-4 border-indigo-100">
+                    <p className="text-[16px] text-slate-600 italic leading-relaxed font-medium">
+                      "{selectedAlumni.message}"
+                    </p>
+                  </div>
                 )}
 
-                <div className="flex gap-3">
+                <div className="flex items-center gap-4">
                   {selectedAlumni.linkedin && (
                     <a
                       href={selectedAlumni.linkedin}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 py-3 bg-[#0077b5] text-white rounded-xl flex items-center justify-center gap-2 text-sm font-bold"
+                      className="group flex-1 py-4 bg-slate-900 hover:bg-indigo-600 text-white rounded-[1.8rem] flex items-center justify-center gap-3 text-sm font-bold transition-all duration-300 shadow-xl active:scale-[0.98]"
                     >
-                      <Linkedin className="w-4 h-4" /> LinkedIn
+                      <Linkedin className="w-5 h-5 transition-transform group-hover:scale-110" /> 
+                      LinkedIn Profile
                     </a>
                   )}
                 </div>
