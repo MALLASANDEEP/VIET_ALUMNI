@@ -12,14 +12,20 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCreateProfile } from "@/hooks/useProfile";
 
 const departments = [
-  "Computer Science",
-  "Electronics",
-  "Mechanical",
+  "Computer Science(CSE)",
+ "Data Science(DS)",
+ "Cybersecurity(CS)",
+ "AI &ML",
+  "Mechanical(MECH)",
   "Civil",
-  "Electrical",
+  "Electronics Communication(ECE)",
   "Chemical",
-  "Information Technology",
-  "Biotechnology",
+  "Automobile",
+  "Electrical & Electronics(EEE)",
+  "MBA",
+  "MCA",
+  "BBA",
+  "BCA",
 ];
 
 const Register = () => {
