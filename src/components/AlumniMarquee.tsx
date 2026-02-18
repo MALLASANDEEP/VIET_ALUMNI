@@ -114,25 +114,6 @@ const AlumniMarquee = () => {
         </div>
       </div>
 
-      {/* Marquee Controls */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 right-0 z-30 flex justify-between items-center px-3">
-        <button
-          onMouseEnter={() => setSpeedUp(true)}
-          onMouseLeave={() => setSpeedUp(false)}
-          className="pointer-events-auto bg-white/80 backdrop-blur-md shadow-xl rounded-full p-3 hover:bg-indigo-600 hover:text-white transition"
-        >
-          &lt;
-        </button>
-
-        <button
-          onMouseEnter={() => setSpeedUp(true)}
-          onMouseLeave={() => setSpeedUp(false)}
-          className="pointer-events-auto bg-white/80 backdrop-blur-md shadow-xl rounded-full p-3 hover:bg-indigo-600 hover:text-white transition"
-        >
-          &gt;
-        </button>
-      </div>
-
       {/* Marquee Row */}
       <div className="relative flex gap-4">
         <div
@@ -172,7 +153,7 @@ const AlumniMarquee = () => {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-white rounded-[2.5rem] max-w-md w-full relative overflow-hidden shadow-2xl"
+              className="bg-white rounded-[2.5rem] max-w-md w-full relative overflow-hidden shadow-2xl max-h-[90vh]"
               onClick={(e) => e.stopPropagation()}
             >
               <button
@@ -182,23 +163,32 @@ const AlumniMarquee = () => {
                 <X className="w-5 h-5" />
               </button>
 
-              {/* Modal Top with Logo Blur */}
-              <div className="relative h-32 overflow-hidden">
+              {/* Modal Top */}
+              <div className="relative h-48 overflow-hidden bg-slate-100 flex items-center justify-center">
                 <img
                   src="https://www.viet.edu.in/img/header-imgs/viet-logo.svg"
                   alt="Logo Background"
-                  className="w-full h-full object-cover filter blur-sm opacity-40"
+                  className="w-full h-full object-contain p-6 filter blur-md opacity-30"
                 />
+
                 <div className="absolute -bottom-12 left-8">
-                  <img
-                    src={selectedAlumni.photo_url || ""}
-                    alt={selectedAlumni.name}
-                    className="w-24 h-24 object-cover rounded-3xl border-4 border-white shadow-xl bg-slate-100"
-                  />
+                  <div className="w-24 h-24 rounded-3xl border-4 border-white shadow-xl bg-slate-100 overflow-hidden">
+                    {selectedAlumni.photo_url ? (
+                      <img
+                        src={selectedAlumni.photo_url}
+                        alt={selectedAlumni.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-slate-500">
+                        {selectedAlumni.name?.charAt(0)}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              <div className="pt-16 p-8">
+              <div className="pt-16 p-8 overflow-y-auto">
                 <h2 className="text-2xl font-bold text-slate-900 mb-1">
                   {selectedAlumni.name}
                 </h2>
@@ -208,7 +198,9 @@ const AlumniMarquee = () => {
 
                 {(selectedAlumni.current_position || selectedAlumni.company) && (
                   <p className="text-sm text-slate-800 mb-2">
-                    <span className="font-bold">{selectedAlumni.current_position || "Professional"}</span>
+                    <span className="font-bold">
+                      {selectedAlumni.current_position || "Professional"}
+                    </span>
                     {selectedAlumni.company && (
                       <span> at <span className="font-medium">{selectedAlumni.company}</span></span>
                     )}
@@ -226,6 +218,7 @@ const AlumniMarquee = () => {
                     <a
                       href={selectedAlumni.linkedin}
                       target="_blank"
+                      rel="noopener noreferrer"
                       className="flex-1 py-3 bg-[#0077b5] text-white rounded-xl flex items-center justify-center gap-2 text-sm font-bold"
                     >
                       <Linkedin className="w-4 h-4" /> LinkedIn
