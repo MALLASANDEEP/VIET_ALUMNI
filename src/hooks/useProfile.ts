@@ -51,6 +51,7 @@ export const useCreateProfile = () => {
       user_id: string;
       email: string;
       full_name: string;
+      photo_url?: string;
       phone?: string;
       department?: string;
       batch?: string;

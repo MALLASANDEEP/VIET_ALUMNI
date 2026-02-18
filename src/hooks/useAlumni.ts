@@ -32,6 +32,7 @@ export interface AlumniInsert {
   linkedin?: string | null;
   lpa?: number | null;
   message?: string | null;
+  roll_no?: string | null;
 }
 
 // ---------------- FETCH ALUMNI ----------------

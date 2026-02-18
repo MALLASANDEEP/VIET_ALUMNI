@@ -41,6 +41,7 @@ const Register = () => {
     rollNo: "",
     lpa: "",
     linkedin: "",
+    photo: null as File | null,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
