@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { 
@@ -29,6 +29,36 @@ const Login = () => {
     password: "",
   });
 
+  // Check if user is already logged in (after OAuth redirect)
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error("Error fetching session:", error.message);
+        return;
+      }
+
+      if (session?.user) {
+        // User is logged in, redirect to dashboard
+        navigate("/dashboard");
+      }
+    };
+
+    checkUser();
+
+    // Optional: Listen for auth state changes while on login page
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        navigate("/dashboard");
+      }
+    });
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, [navigate]);
+
+  // Email/password login
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -53,6 +83,7 @@ const Login = () => {
     }
   };
 
+  // Google login
   const handleGoogleLogin = async () => {
     try {
       setSocialLoading("google");
@@ -60,7 +91,7 @@ const Login = () => {
       await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${window.location.origin}/login`, // redirect back to login page
         },
       });
     } catch (error: any) {
@@ -74,6 +105,7 @@ const Login = () => {
     }
   };
 
+  // LinkedIn login
   const handleLinkedInLogin = async () => {
     try {
       setSocialLoading("linkedin");
@@ -81,7 +113,7 @@ const Login = () => {
       await supabase.auth.signInWithOAuth({
         provider: "linkedin_oidc",
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${window.location.origin}/login`, // redirect back to login page
         },
       });
     } catch (error: any) {
@@ -130,7 +162,6 @@ const Login = () => {
             <form onSubmit={handleLogin} className="space-y-6">
 
               <div className="space-y-3">
-
                 <Button
                   type="button"
                   className="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 flex items-center justify-center gap-3"
@@ -184,10 +215,7 @@ const Login = () => {
                     className="pl-10"
                     value={formData.email}
                     onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        email: e.target.value,
-                      }))
+                      setFormData((prev) => ({ ...prev, email: e.target.value }))
                     }
                     placeholder="you@example.com"
                   />
@@ -205,10 +233,7 @@ const Login = () => {
                     className="pl-10"
                     value={formData.password}
                     onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        password: e.target.value,
-                      }))
+                      setFormData((prev) => ({ ...prev, password: e.target.value }))
                     }
                     placeholder="••••••••"
                   />
