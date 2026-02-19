@@ -115,11 +115,23 @@ const AlumniMarquee = () => {
   return (
     <section className="pt-6 pb-20 bg-[#f8fafc] overflow-hidden relative">
 
-      <div className="container mx-auto px-6 mb-16 relative text-center">
-        <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight">
-          {sectionTitle}
-        </h2>
-        <div className="h-1 w-20 bg-indigo-600 mx-auto rounded-full" />
+      {/* Section Header with Explore Button */}
+      <div className="container mx-auto px-6 mb-16 relative flex items-center justify-between">
+        <div className="text-center md:text-left">
+          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight">
+            {sectionTitle}
+          </h2>
+          <div className="h-1 w-20 bg-indigo-600 rounded-full" />
+        </div>
+
+        {/* Explore Button */}
+        <Link
+          to="/alumni"
+          className="hidden md:inline-flex items-center gap-2 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-full transition-all"
+        >
+          Explore 
+          <ArrowRight className="w-4 h-4" />
+        </Link>
       </div>
 
       <div className="relative flex gap-4">
