@@ -4,11 +4,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { 
   GraduationCap, Mail, Lock, User, Phone, Building, 
   Calendar, Loader2, ArrowLeft, UserCheck, Users, 
-  Hash, Banknote, Linkedin 
+  Hash, Banknote, Linkedin, AlignLeft // Added icon for Bio
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea"; // Ensure this exists in your UI components
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
@@ -42,6 +43,7 @@ const Register = () => {
     lpa: "",
     linkedin: "",
     photo: null as File | null,
+    bio: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -82,6 +84,7 @@ const Register = () => {
           roll_no: formData.rollNo || undefined,
           lpa: formData.lpa ? parseFloat(formData.lpa) : undefined,
           linkedin_url: formData.linkedin || undefined,
+          bio: formData.bio || "", // Using the actual bio from state now
         });
       }
       
@@ -145,7 +148,7 @@ const Register = () => {
                 </button>
               </div>
 
-              {/* Basic Info */}
+              {/* Basic Info (Common to both) */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="fullName">Full Name *</Label>
@@ -234,6 +237,21 @@ const Register = () => {
                       <Input id="currentPosition" value={formData.currentPosition} onChange={(e) => setFormData(prev => ({ ...prev, currentPosition: e.target.value }))} placeholder="Software Engineer..." className="mt-1" />
                     </div>
                   </div>
+                  
+                  {/* Bio Field - Added here */}
+                  <div>
+                    <Label htmlFor="bio">Professional Bio</Label>
+                    <div className="relative mt-1">
+                      <Textarea 
+                        id="bio" 
+                        value={formData.bio} 
+                        onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))} 
+                        placeholder="Tell us about your professional journey..." 
+                        className="min-h-[100px] resize-none"
+                      />
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="lpa">LPA (Salary)</Label>
@@ -267,5 +285,5 @@ const Register = () => {
     </div>
   );
 };
-
+ 
 export default Register;
