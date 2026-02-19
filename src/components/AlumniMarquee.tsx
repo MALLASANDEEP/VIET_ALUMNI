@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Loader2, X, Linkedin, Building, ArrowRight, Compass
@@ -59,6 +59,37 @@ const AlumniMarquee = () => {
   const { data, isLoading } = useAlumni();
   const [selectedAlumni, setSelectedAlumni] = useState<any | null>(null);
   const [speedUp, setSpeedUp] = useState(false);
+
+  // ✅ PROFESSIONAL SCROLL LOCK (No jump, no shift, no reset)
+  useEffect(() => {
+    if (selectedAlumni) {
+      const scrollY = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = "0";
+      document.body.style.right = "0";
+      document.body.style.width = "100%";
+    } else {
+      const scrollY = document.body.style.top;
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || "0") * -1);
+      }
+    }
+
+    return () => {
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+    };
+  }, [selectedAlumni]);
 
   const dbAlumni = data?.alumni || [];
   const sectionTitle = data?.sectionTitle || "Distinguished Alumni";
@@ -136,7 +167,6 @@ const AlumniMarquee = () => {
                   className="relative z-10 max-h-20 max-w-[70%] object-contain"
                 />
 
-                {/* Lowered Profile Image */}
                 <div className="absolute right-6 top-full -translate-y-1/3 z-20">
                   <img
                     src={selectedAlumni.photo_url || ""}
