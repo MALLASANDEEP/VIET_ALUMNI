@@ -1,14 +1,21 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { GraduationCap, Mail, Lock, Loader2, ArrowLeft } from "lucide-react";
+import { 
+  GraduationCap, 
+  Mail, 
+  Lock, 
+  Loader2, 
+  ArrowLeft,
+  Linkedin
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client"; // make sure this path is correct
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -22,9 +29,6 @@ const Login = () => {
     password: "",
   });
 
-  // =========================
-  // Email Login
-  // =========================
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -49,9 +53,6 @@ const Login = () => {
     }
   };
 
-  // =========================
-  // Google Login
-  // =========================
   const handleGoogleLogin = async () => {
     try {
       setSocialLoading("google");
@@ -73,9 +74,6 @@ const Login = () => {
     }
   };
 
-  // =========================
-  // LinkedIn Login
-  // =========================
   const handleLinkedInLogin = async () => {
     try {
       setSocialLoading("linkedin");
@@ -98,14 +96,14 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-navy-dark via-navy to-navy-dark flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
-        <Card className="bg-card/95 backdrop-blur">
+        <Card className="bg-card/95 backdrop-blur shadow-2xl border border-gold/20">
           <CardHeader className="text-center">
             <Link
               to="/"
@@ -115,7 +113,7 @@ const Login = () => {
               Back to Home
             </Link>
 
-            <div className="w-16 h-16 rounded-2xl bg-gold flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 rounded-2xl bg-gold flex items-center justify-center mx-auto mb-4 shadow-lg">
               <GraduationCap className="w-8 h-8 text-navy-dark" />
             </div>
 
@@ -124,38 +122,44 @@ const Login = () => {
             </CardTitle>
 
             <CardDescription>
-              Sign in to continue to your workspace
+              Our Pride. Our Network. Our Legacy.
             </CardDescription>
           </CardHeader>
 
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-6">
 
-              {/* ================= SOCIAL LOGIN ================= */}
               <div className="space-y-3">
+
                 <Button
                   type="button"
-                  variant="outline"
-                  className="w-full"
+                  className="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 flex items-center justify-center gap-3"
                   onClick={handleGoogleLogin}
                   disabled={socialLoading === "google"}
                 >
                   {socialLoading === "google" ? (
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  ) : null}
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <img
+                      src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                      alt="Google"
+                      className="w-5 h-5"
+                    />
+                  )}
                   Continue with Google
                 </Button>
 
                 <Button
                   type="button"
-                  variant="outline"
-                  className="w-full"
+                  className="w-full bg-[#0A66C2] hover:bg-[#004182] text-white flex items-center justify-center gap-3"
                   onClick={handleLinkedInLogin}
                   disabled={socialLoading === "linkedin"}
                 >
                   {socialLoading === "linkedin" ? (
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  ) : null}
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  ) : (
+                    <Linkedin className="w-5 h-5" />
+                  )}
                   Continue with LinkedIn
                 </Button>
 
@@ -169,7 +173,6 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* ================= EMAIL ================= */}
               <div>
                 <Label htmlFor="email">Email *</Label>
                 <div className="relative mt-1">
@@ -191,7 +194,6 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* ================= PASSWORD ================= */}
               <div>
                 <Label htmlFor="password">Password *</Label>
                 <div className="relative mt-1">
@@ -213,8 +215,11 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* ================= SUBMIT ================= */}
-              <Button type="submit" className="w-full btn-gold" disabled={loading}>
+              <Button 
+                type="submit" 
+                className="w-full bg-gold hover:bg-yellow-500 text-navy-dark font-semibold"
+                disabled={loading}
+              >
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
