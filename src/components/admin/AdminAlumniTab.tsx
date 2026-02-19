@@ -57,11 +57,19 @@ export const AdminAlumniTab = () => {
     message: ""   
   });
 
+  // ---------------- HELPER ----------------
+  const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
   // ---------------- TITLE ----------------
   const handleUpdateTitle = async () => {
     if (!newSectionTitle) return;
-    await updateTitle.mutateAsync(newSectionTitle);
-    setNewSectionTitle("");
+    try {
+      await updateTitle.mutateAsync(newSectionTitle);
+      setNewSectionTitle("");
+    } catch (err) {
+      console.error("Failed to update title:", err);
+      alert("Failed to update section title.");
+    }
   };
 
   // ---------------- UPLOAD PHOTO ----------------
@@ -74,6 +82,7 @@ export const AdminAlumniTab = () => {
       setPhotoUrl(url);
     } catch (error) {
       console.error("Upload failed:", error);
+      alert("Photo upload failed. Try again.");
     } finally {
       setUploading(false);
     }
@@ -84,20 +93,61 @@ export const AdminAlumniTab = () => {
     e.preventDefault();
     if (!formData.name || !formData.batch || !formData.department) return;
 
+    // 🚫 Email validation
+    if (formData.email) {
+      if (!isValidEmail(formData.email)) {
+        alert("Please enter a valid email address.");
+        return;
+      }
+      if (!editingId && alumniList.some(a => a.email === formData.email)) {
+        alert("An alumni with this email already exists!");
+        return;
+      }
+    }
+
     const payload = { ...formData, photo_url: photoUrl || undefined };
 
-    if (editingId) await updateAlumni.mutateAsync({ id: editingId, ...payload });
-    else await addAlumni.mutateAsync(payload);
+    try {
+      if (editingId) {
+        await updateAlumni.mutateAsync({ id: editingId, ...payload });
+      } else {
+        await addAlumni.mutateAsync(payload);
+      }
 
-    setFormData({ name: "", batch: "", department: DEPARTMENTS[0], email: "", current_position: "", company: "", linkedin: "", lpa: null, message: "" });
-    setPhotoUrl(null);
-    setEditingId(null);
-    setShowForm(false);
+      // Reset form
+      setFormData({
+        name: "",
+        batch: "",
+        department: DEPARTMENTS[0],
+        email: "",
+        current_position: "",
+        company: "",
+        linkedin: "",
+        lpa: null,
+        message: ""
+      });
+      setPhotoUrl(null);
+      setEditingId(null);
+      setShowForm(false);
+    } catch (err: any) {
+      console.error("Failed to save alumni:", err);
+      if (err?.message?.includes("duplicate")) {
+        alert("This email is already registered.");
+      } else {
+        alert("Failed to save alumni. Try again.");
+      }
+    }
   };
 
   // ---------------- DELETE ----------------
   const handleDelete = async (id: string) => {
-    if (confirm("Are you sure you want to delete this alumni?")) await deleteAlumni.mutateAsync(id);
+    if (!confirm("Are you sure you want to delete this alumni?")) return;
+    try {
+      await deleteAlumni.mutateAsync(id);
+    } catch (err) {
+      console.error("Delete failed:", err);
+      alert("Failed to delete alumni.");
+    }
   };
 
   // ---------------- EDIT ----------------
@@ -168,7 +218,7 @@ export const AdminAlumniTab = () => {
                       {DEPARTMENTS.map(d=><option key={d} value={d}>{d}</option>)}
                     </select>
                   </div>
-                  <div><Label>Email</Label><Input value={formData.email||""} onChange={e=>setFormData({...formData,email:e.target.value})}/></div>
+                  <div><Label>Email</Label><Input type="email" value={formData.email||""} onChange={e=>setFormData({...formData,email:e.target.value})}/></div>
                   <div><Label>Current Position</Label><Input value={formData.current_position||""} onChange={e=>setFormData({...formData,current_position:e.target.value})}/></div>
                   <div><Label>Company</Label><Input value={formData.company||""} onChange={e=>setFormData({...formData,company:e.target.value})}/></div>
                   <div><Label>LinkedIn</Label><Input value={formData.linkedin||""} onChange={e=>setFormData({...formData,linkedin:e.target.value})}/></div>
@@ -192,9 +242,7 @@ export const AdminAlumniTab = () => {
               </div>
             ) : (
               alumniList.map(alumni => (
-
                 <Card key={alumni.id} className="border-border/50 shadow">
-
                   <CardContent className="space-y-3">
                     <div className="flex items-center gap-4">
                       <Avatar className="w-12 h-12">

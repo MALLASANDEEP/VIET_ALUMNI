@@ -2,9 +2,8 @@ import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  GraduationCap, Mail, Lock, User, Phone, Building,
-  Calendar, Loader2, ArrowLeft, UserCheck, Users,
-  Hash, Banknote, Linkedin, Camera, Upload
+  GraduationCap, Loader2, ArrowLeft, UserCheck, Users,
+  Camera, Upload
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,8 +27,8 @@ const Register = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { signUp } = useAuth();
   const createProfile = useCreateProfile();
-
   const [loading, setLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -75,13 +74,17 @@ const Register = () => {
     setLoading(true);
 
     try {
-      // 1. Create Auth User
-      await signUp(formData.email, formData.password);
+      // 1️⃣ Create Auth User
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+      });
+      if (signUpError) throw signUpError;
 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("User registration failed");
 
-      // 2. Handle Image Upload (If Alumni provides a photo)
+      // 2️⃣ Upload Photo (Optional)
       let photoUrl: string | undefined = undefined;
       if (formData.photo) {
         const fileExt = formData.photo.name.split(".").pop();
@@ -98,30 +101,36 @@ const Register = () => {
         photoUrl = data.publicUrl;
       }
 
-      // 3. Create Profile Entry
-      await createProfile.mutateAsync({
-        user_id: user.id,
-        email: formData.email,
-        full_name: formData.fullName,
-        phone: formData.phone || undefined,
-        department: formData.department || undefined,
-        batch: formData.batch || undefined,
-        company: formData.company || undefined,
-        current_position: formData.currentPosition || undefined,
-        requested_role: formData.requestedRole,
-        roll_no: formData.rollNo || undefined,
-        lpa: formData.lpa ? parseFloat(formData.lpa) : undefined,
-        linkedin_url: formData.linkedin || undefined,
-        bio: formData.bio || "",
-        photo_url: photoUrl,
-      });
+      // 3️⃣ Create Profile (Atomic)
+      try {
+        await createProfile.mutateAsync({
+          user_id: user.id,
+          email: formData.email,
+          full_name: formData.fullName,
+          phone: formData.phone || undefined,
+          department: formData.department || undefined,
+          batch: formData.batch || undefined,
+          company: formData.company || undefined,
+          current_position: formData.currentPosition || undefined,
+          requested_role: formData.requestedRole,
+          roll_no: formData.rollNo || undefined,
+          lpa: formData.lpa ? parseFloat(formData.lpa) : undefined,
+          linkedin_url: formData.linkedin || undefined,
+          bio: formData.bio || "",
+          photo_url: photoUrl,
+        });
+      } catch (profileError) {
+        // ❌ Rollback auth user if profile creation fails
+        await supabase.auth.admin.deleteUser(user.id);
+        throw profileError;
+      }
 
       toast({
         title: "Registration Successful",
         description: "Please verify your email. Admin will review your account soon.",
       });
-
       navigate("/login");
+
     } catch (error: any) {
       toast({
         title: "Registration Failed",
@@ -150,7 +159,7 @@ const Register = () => {
 
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              
+
               {/* Role Selection */}
               <div className="grid grid-cols-2 gap-4">
                 <button
@@ -171,7 +180,7 @@ const Register = () => {
                 </button>
               </div>
 
-              {/* Profile Image (Visible for both or Alumni only based on preference) */}
+              {/* Profile Image */}
               <div className="flex flex-col items-center gap-3">
                 <Label>Profile Picture</Label>
                 <div 
@@ -190,7 +199,7 @@ const Register = () => {
                 <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
               </div>
 
-              {/* Identity Info */}
+              {/* Full Name & Roll No */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Full Name *</Label>
@@ -226,7 +235,7 @@ const Register = () => {
                 </div>
               </div>
 
-              {/* Education */}
+              {/* Department & Batch */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Department</Label>
@@ -245,7 +254,7 @@ const Register = () => {
                 </div>
               </div>
 
-              {/* Alumni Section */}
+              {/* Alumni Fields */}
               {formData.requestedRole === "alumni" && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-4 pt-4 border-t border-gold/10">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

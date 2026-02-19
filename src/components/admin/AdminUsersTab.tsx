@@ -8,7 +8,9 @@ import {
   Loader2,
   Search,
   UserCheck,
-  GraduationCap
+  GraduationCap,
+  Edit,
+  Trash
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,23 +29,17 @@ export const AdminUsersTab = () => {
   const { data: pendingUsers, isLoading: pendingLoading } = usePendingRegistrations();
   const { data: allUsers, isLoading: allLoading } = useAllProfiles();
   const updateProfile = useUpdateProfile();
-  
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"pending" | "all">("pending");
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [editData, setEditData] = useState<Partial<Profile>>({});
 
   const handleApprove = async (profile: Profile) => {
     try {
-      // Update profile status
       await updateProfile.mutateAsync({ id: profile.id, status: "approved" });
-      
-      // Add role to user_roles table
       const role = profile.requested_role === "alumni" ? "alumni" : "student";
-      const { error } = await supabase
-        .from("user_roles")
-        .insert({ user_id: profile.user_id, role: role as any });
-      
+      const { error } = await supabase.from("user_roles").insert({ user_id: profile.user_id, role });
       if (error) throw error;
-      
       toast({ title: "Success", description: `${profile.full_name} approved as ${profile.requested_role}` });
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -54,6 +50,34 @@ export const AdminUsersTab = () => {
     try {
       await updateProfile.mutateAsync({ id: profile.id, status: "rejected" });
       toast({ title: "Success", description: `${profile.full_name}'s registration rejected` });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const handleDelete = async (profile: Profile) => {
+    if (!confirm(`Are you sure you want to delete ${profile.full_name}?`)) return;
+    try {
+      // Delete from profiles table
+      const { error: profileError } = await supabase.from("profiles").delete().eq("id", profile.id);
+      if (profileError) throw profileError;
+
+      // Delete auth user
+      const { error: authError } = await supabase.auth.admin.deleteUser(profile.user_id);
+      if (authError) throw authError;
+
+      toast({ title: "Deleted", description: `${profile.full_name} has been deleted.` });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const handleSaveEdit = async (profile: Profile) => {
+    try {
+      await updateProfile.mutateAsync({ id: profile.id, ...editData });
+      toast({ title: "Updated", description: `${profile.full_name}'s details updated.` });
+      setEditingUserId(null);
+      setEditData({});
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     }
@@ -144,9 +168,18 @@ export const AdminUsersTab = () => {
                         <span className="text-gold font-bold text-lg">{user.full_name.charAt(0)}</span>
                       )}
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-foreground">{user.full_name}</h3>
-                      <p className="text-sm text-muted-foreground">{user.email}</p>
+                    <div className="flex flex-col gap-1">
+                      {editingUserId === user.id ? (
+                        <>
+                          <Input value={editData.full_name || user.full_name} onChange={e => setEditData({...editData, full_name: e.target.value})} className="text-sm"/>
+                          <Input value={editData.email || user.email} onChange={e => setEditData({...editData, email: e.target.value})} className="text-sm"/>
+                        </>
+                      ) : (
+                        <>
+                          <h3 className="font-semibold text-foreground">{user.full_name}</h3>
+                          <p className="text-sm text-muted-foreground">{user.email}</p>
+                        </>
+                      )}
                       <div className="flex flex-wrap gap-2 mt-1">
                         {getRoleBadge(user.requested_role)}
                         {getStatusBadge(user.status)}
@@ -160,39 +193,41 @@ export const AdminUsersTab = () => {
                     </div>
                   </div>
                   
-                  {user.status === "pending" && (
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        className="bg-green-600 hover:bg-green-700 text-white gap-1"
-                        onClick={() => handleApprove(user)}
-                        disabled={updateProfile.isPending}
-                      >
-                        <CheckCircle className="w-4 h-4" />
-                        Approve
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        className="gap-1"
-                        onClick={() => handleReject(user)}
-                        disabled={updateProfile.isPending}
-                      >
-                        <XCircle className="w-4 h-4" />
-                        Reject
-                      </Button>
-                    </div>
-                  )}
+                  <div className="flex gap-2">
+                    {user.status === "pending" && (
+                      <>
+                        <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white gap-1" onClick={() => handleApprove(user)} disabled={updateProfile.isPending}>
+                          <CheckCircle className="w-4 h-4" /> Approve
+                        </Button>
+                        <Button size="sm" variant="destructive" className="gap-1" onClick={() => handleReject(user)} disabled={updateProfile.isPending}>
+                          <XCircle className="w-4 h-4" /> Reject
+                        </Button>
+                      </>
+                    )}
+                    {editingUserId === user.id ? (
+                      <Button size="sm" className="bg-blue-600 text-white gap-1" onClick={() => handleSaveEdit(user)}>Save</Button>
+                    ) : (
+                      <Button size="sm" className="bg-yellow-500 text-white gap-1" onClick={() => {setEditingUserId(user.id); setEditData(user);}}><Edit className="w-4 h-4"/> Edit</Button>
+                    )}
+                    <Button size="sm" variant="destructive" className="gap-1" onClick={() => handleDelete(user)}><Trash className="w-4 h-4"/> Delete</Button>
+                  </div>
                 </div>
 
-                {/* Additional Info */}
-                {(user.company || user.current_position) && (
-                  <div className="mt-3 pt-3 border-t border-border text-sm text-muted-foreground">
-                    {user.current_position && <span>{user.current_position}</span>}
-                    {user.current_position && user.company && <span> at </span>}
-                    {user.company && <span className="text-gold">{user.company}</span>}
-                  </div>
-                )}
+                {/* Additional Info Section */}
+                <div className="mt-3 pt-3 border-t border-border text-sm text-muted-foreground flex flex-col gap-1">
+                  {user.roll_no && <span>Roll No: {user.roll_no}</span>}
+                  {user.phone && <span>Phone: {user.phone}</span>}
+                  {user.company && user.current_position && (
+                    <span>Position: {user.current_position} at <span className="text-gold">{user.company}</span></span>
+                  )}
+                  {user.linkedin_url && (
+                    <span>
+                      LinkedIn: <a href={user.linkedin_url} target="_blank" className="text-blue-500 underline">{user.linkedin_url}</a>
+                    </span>
+                  )}
+                  {user.lpa && <span>LPA: {user.lpa} LPA</span>}
+                  {user.bio && <span>Bio: {user.bio}</span>}
+                </div>
               </motion.div>
             ))}
           </div>
