@@ -55,22 +55,49 @@ export const AdminUsersTab = () => {
     }
   };
 
-  const handleDelete = async (profile: Profile) => {
-    if (!confirm(`Are you sure you want to delete ${profile.full_name}?`)) return;
-    try {
-      // Delete from profiles table
-      const { error: profileError } = await supabase.from("profiles").delete().eq("id", profile.id);
-      if (profileError) throw profileError;
+const handleDelete = async (profile: Profile) => {
+  if (!confirm(`Are you sure you want to delete ${profile.full_name}?`)) return;
 
-      // Delete auth user
-      const { error: authError } = await supabase.auth.admin.deleteUser(profile.user_id);
-      if (authError) throw authError;
+  try {
+    // 1️⃣ Delete from profiles table
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .delete()
+      .eq("id", profile.id);
 
-      toast({ title: "Deleted", description: `${profile.full_name} has been deleted.` });
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+    if (profileError) throw profileError;
+
+    // 2️⃣ Call backend to delete auth user
+    const response = await fetch("http://localhost:4000/delete-user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: profile.user_id,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || "Failed to delete auth user");
     }
-  };
+
+    toast({
+      title: "Deleted",
+      description: `${profile.full_name} has been deleted.`,
+    });
+
+  } catch (error: any) {
+    toast({
+      title: "Error",
+      description: error.message,
+      variant: "destructive",
+    });
+  }
+};
+
 
   const handleSaveEdit = async (profile: Profile) => {
     try {

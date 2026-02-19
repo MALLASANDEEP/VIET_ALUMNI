@@ -61,6 +61,7 @@ export const useCreateProfile = () => {
       requested_role: "student" | "alumni";
       roll_no?: string;
       lpa?: number;
+      bio?: string;
     }) => {
       const { data, error } = await supabase
         .from("profiles")
