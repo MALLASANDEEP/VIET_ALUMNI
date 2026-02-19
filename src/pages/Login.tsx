@@ -8,23 +8,28 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client"; // make sure this path is correct
 
 const Login = () => {
   const navigate = useNavigate();
   const { signIn } = useAuth();
 
   const [loading, setLoading] = useState(false);
+  const [socialLoading, setSocialLoading] = useState<string | null>(null);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
+  // =========================
+  // Email Login
+  // =========================
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // Your useAuth already throws error internally
       await signIn(formData.email, formData.password);
 
       toast({
@@ -32,7 +37,7 @@ const Login = () => {
         description: "Welcome back!",
       });
 
-      navigate("/dashboard"); // Change route if needed
+      navigate("/dashboard");
     } catch (error: any) {
       toast({
         title: "Login Failed",
@@ -41,6 +46,54 @@ const Login = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  // =========================
+  // Google Login
+  // =========================
+  const handleGoogleLogin = async () => {
+    try {
+      setSocialLoading("google");
+
+      await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+    } catch (error: any) {
+      toast({
+        title: "Google Login Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setSocialLoading(null);
+    }
+  };
+
+  // =========================
+  // LinkedIn Login
+  // =========================
+  const handleLinkedInLogin = async () => {
+    try {
+      setSocialLoading("linkedin");
+
+      await supabase.auth.signInWithOAuth({
+        provider: "linkedin_oidc",
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+    } catch (error: any) {
+      toast({
+        title: "LinkedIn Login Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setSocialLoading(null);
     }
   };
 
@@ -71,14 +124,52 @@ const Login = () => {
             </CardTitle>
 
             <CardDescription>
-              Sign in with your registered email and password
+              Sign in to continue to your workspace
             </CardDescription>
           </CardHeader>
 
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-6">
 
-              {/* Email */}
+              {/* ================= SOCIAL LOGIN ================= */}
+              <div className="space-y-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleGoogleLogin}
+                  disabled={socialLoading === "google"}
+                >
+                  {socialLoading === "google" ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : null}
+                  Continue with Google
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleLinkedInLogin}
+                  disabled={socialLoading === "linkedin"}
+                >
+                  {socialLoading === "linkedin" ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : null}
+                  Continue with LinkedIn
+                </Button>
+
+                <div className="relative text-center text-sm text-muted-foreground">
+                  <span className="bg-card px-2 relative z-10">
+                    or continue with email
+                  </span>
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-muted"></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ================= EMAIL ================= */}
               <div>
                 <Label htmlFor="email">Email *</Label>
                 <div className="relative mt-1">
@@ -100,7 +191,7 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* Password */}
+              {/* ================= PASSWORD ================= */}
               <div>
                 <Label htmlFor="password">Password *</Label>
                 <div className="relative mt-1">
@@ -122,7 +213,7 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* Submit */}
+              {/* ================= SUBMIT ================= */}
               <Button type="submit" className="w-full btn-gold" disabled={loading}>
                 {loading ? (
                   <>
