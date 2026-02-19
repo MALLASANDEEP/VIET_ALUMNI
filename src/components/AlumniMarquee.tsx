@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Loader2, X, Linkedin, Building
@@ -28,8 +28,6 @@ const AlumniCard = ({ alumni, onClick }: { alumni: any; onClick: (alumni: any) =
       <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
       
       <div className="absolute bottom-4 left-6 z-20">
-        
-        {/* ✅ Glass Department Badge */}
         <div className="mb-2">
           <span className="px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] 
            bg-[#4f46e5] backdrop-blur-xl 
@@ -70,6 +68,31 @@ const AlumniMarquee = () => {
   const { data, isLoading } = useAlumni();
   const [selectedAlumni, setSelectedAlumni] = useState<any | null>(null);
   const [speedUp, setSpeedUp] = useState(false);
+
+  /* 🔒 Background Scroll Lock Added (Nothing Else Changed) */
+  useEffect(() => {
+    if (selectedAlumni) {
+      const scrollY = window.scrollY;
+
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = "0";
+      document.body.style.right = "0";
+      document.body.style.width = "100%";
+    } else {
+      const scrollY = document.body.style.top;
+
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY) * -1);
+      }
+    }
+  }, [selectedAlumni]);
 
   const dbAlumni = data?.alumni || [];
   const sectionTitle = data?.sectionTitle || "Distinguished Alumni";
