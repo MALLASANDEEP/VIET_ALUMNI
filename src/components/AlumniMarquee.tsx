@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Loader2, X, Linkedin, Building, ArrowRight, Compass
+  Loader2, X, Linkedin, Building
 } from "lucide-react";
 import { useAlumni } from "@/hooks/useAlumni";
 import { Link } from "react-router-dom"; 
@@ -28,9 +28,20 @@ const AlumniCard = ({ alumni, onClick }: { alumni: any; onClick: (alumni: any) =
       <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
       
       <div className="absolute bottom-4 left-6 z-20">
-        <p className="text-indigo-400 text-[9px] font-black uppercase tracking-[0.2em] mb-1">
-          {alumni.department}
-        </p>
+        
+        {/* ✅ Glass Department Badge */}
+        <div className="mb-2">
+          <span className="px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] 
+           bg-[#4f46e5] backdrop-blur-xl 
+            border border-white/20 
+            text-white 
+            rounded-full 
+            shadow-lg 
+            inline-block">
+            {alumni.department}
+          </span>
+        </div>
+
         <h3 className="text-white font-bold text-xl leading-tight">
           {alumni.name}
         </h3>
@@ -125,7 +136,6 @@ const AlumniMarquee = () => {
                 <X className="w-5 h-5" />
               </button>
 
-              {/* Header */}
               <div className="relative h-44 flex items-center justify-center overflow-visible">
                 <div className="absolute inset-0 bg-orange-500/70 backdrop-blur-xl" />
                 <div className="absolute inset-0 bg-gradient-to-tr from-white/25 to-transparent" />
@@ -136,7 +146,6 @@ const AlumniMarquee = () => {
                   className="relative z-10 max-h-20 max-w-[70%] object-contain"
                 />
 
-                {/* Lowered Profile Image */}
                 <div className="absolute right-6 top-full -translate-y-1/3 z-20">
                   <img
                     src={selectedAlumni.photo_url || ""}
@@ -183,14 +192,6 @@ const AlumniMarquee = () => {
                         </p>
                       </div>
                     </div>
-                  </div>
-                )}
-
-                {selectedAlumni.message && (
-                  <div className="bg-indigo-50 border-l-4 border-indigo-600 rounded-lg p-4 mb-5">
-                    <p className="text-sm text-slate-700 italic">
-                      "{selectedAlumni.message}"
-                    </p>
                   </div>
                 )}
 
