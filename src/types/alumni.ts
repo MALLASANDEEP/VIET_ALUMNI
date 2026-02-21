@@ -11,6 +11,8 @@ export interface Alumni {
   lpa: number | null;
   message: string | null;
   status?: string;
+  roll_no?: string;
+
 }
 
 export interface AlumniInsert {
@@ -24,4 +26,6 @@ export interface AlumniInsert {
   linkedin?: string | null;
   lpa?: number | null;
   message?: string | null;
+  roll_no?: string;
+
 }
