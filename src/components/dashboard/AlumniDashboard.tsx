@@ -10,18 +10,21 @@ import {
   ExternalLink,
   Building,
   Loader2,
-  User
+  User,
+  LogOut
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { Profile } from "@/hooks/useProfile";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   useMyJobPostings, 
   useCreateJobPosting, 
@@ -45,9 +48,15 @@ export const AlumniDashboard = ({ profile }: AlumniDashboardProps) => {
   const deleteJob = useDeleteJobPosting();
   const createMentorship = useCreateMentorshipOffer();
   const deleteMentorship = useDeleteMentorshipOffer();
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
 
   const [jobDialogOpen, setJobDialogOpen] = useState(false);
   const [mentorDialogOpen, setMentorDialogOpen] = useState(false);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  };
 
   // Job form state
   const [jobForm, setJobForm] = useState({
@@ -128,28 +137,145 @@ export const AlumniDashboard = ({ profile }: AlumniDashboardProps) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     }
   };
+   return (
+  <div className="space-y-6">
 
-  return (
-    <div className="space-y-6">
-      {/* Profile Summary Card */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-gold/20 flex items-center justify-center">
+    {/* Top Bar */}
+    <div className="flex justify-between items-start">
+
+      {/* Left side spacer (keeps height equal to welcome/header area) */}
+      <div className="h-12" />
+
+      {/* Right side profile dropdown */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="rounded-full w-12 h-12 p-0">
+            {profile.photo_url ? (
+              <img
+                src={profile.photo_url}
+                alt={profile.full_name}
+                className="w-12 h-12 rounded-full object-cover"
+              />
+            ) : (
+              <User className="w-6 h-6" />
+            )}
+          </Button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => setProfileDialogOpen(true)}>
+            My Profile
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
+            onClick={handleLogout}
+            className="text-destructive"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Logout
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+
+    {/* PROFILE POPUP */}
+    <Dialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen}>
+      <DialogContent className="max-w-2xl p-0 overflow-hidden">
+
+        {/* Header Section */}
+        <div className="bg-gradient-to-r from-yellow-400 to-amber-500 p-6 text-white">
+          <div className="flex items-center gap-5">
+            <div className="w-24 h-24 rounded-full bg-white/20 backdrop-blur flex items-center justify-center overflow-hidden border-4 border-white shadow-lg">
               {profile.photo_url ? (
-                <img src={profile.photo_url} alt={profile.full_name} className="w-full h-full rounded-full object-cover" />
+                <img
+                  src={profile.photo_url}
+                  alt={profile.full_name}
+                  className="w-full h-full object-cover"
+                />
               ) : (
-                <User className="w-8 h-8 text-gold" />
+                <User className="w-10 h-10 text-white" />
               )}
             </div>
+
             <div>
-              <h3 className="font-semibold text-lg">{profile.full_name}</h3>
-              <p className="text-gold">{profile.current_position} {profile.company && `at ${profile.company}`}</p>
-              <p className="text-muted-foreground text-sm">{profile.department} • Batch {profile.batch}</p>
+              <h3 className="text-2xl font-bold">{profile.full_name}</h3>
+              <p className="opacity-90">
+                {profile.current_position}{" "}
+                {profile.company && `at ${profile.company}`}
+              </p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* Body Section */}
+        <div className="bg-white p-8 space-y-6">
+
+          <div className="bg-gray-50 p-5 rounded-xl shadow-sm space-y-3">
+            <h4 className="text-lg font-semibold text-gray-700">
+              Academic Details
+            </h4>
+
+            <div className="grid grid-cols-2 gap-6 text-sm">
+              <div>
+                <span className="text-gray-500">Department</span>
+                <p className="font-medium">{profile.department}</p>
+              </div>
+
+              <div>
+                <span className="text-gray-500">Batch</span>
+                <p className="font-medium">{profile.batch}</p>
+              </div>
+
+              <div>
+                <span className="text-gray-500">Roll No</span>
+                <p className="font-medium">
+                  {profile.roll_no || "Not provided"}
+                </p>
+              </div>
+
+              <div>
+                <span className="text-gray-500">Email</span>
+                <p className="font-medium break-all">{profile.email}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gray-50 p-5 rounded-xl shadow-sm space-y-3">
+            <h4 className="text-lg font-semibold text-gray-700">
+              Contact Details
+            </h4>
+
+            <div className="grid grid-cols-2 gap-6 text-sm">
+              <div>
+                <span className="text-gray-500">Phone</span>
+                <p className="font-medium">
+                  {profile.phone || "Not provided"}
+                </p>
+              </div>
+
+              <div>
+                <span className="text-gray-500">LinkedIn</span>
+                <p className="font-medium break-all">
+                  {profile.linkedin_url || "Not provided"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gray-50 p-5 rounded-xl shadow-sm">
+            <h4 className="text-lg font-semibold text-gray-700 mb-2">
+              Bio
+            </h4>
+            <p className="text-sm leading-relaxed text-gray-700">
+              {profile.bio || "No bio added yet"}
+            </p>
+          </div>
+
+        </div>
+      </DialogContent>
+    </Dialog>
+
+    {/* Everything below (Tabs, Jobs, Mentorship) remains EXACTLY SAME */}
 
       <Tabs defaultValue="jobs" className="space-y-6">
         <TabsList className="bg-card border border-border">
@@ -216,7 +342,7 @@ export const AlumniDashboard = ({ profile }: AlumniDashboardProps) => {
                       <Input
                         value={jobForm.location}
                         onChange={(e) => setJobForm(prev => ({ ...prev, location: e.target.value }))}
-                        placeholder="Remote, San Francisco..."
+                        placeholder="Remote, Hyderabad..."
                         className="mt-1"
                       />
                     </div>
@@ -351,7 +477,7 @@ export const AlumniDashboard = ({ profile }: AlumniDashboardProps) => {
                       <Input
                         value={mentorForm.contact_phone}
                         onChange={(e) => setMentorForm(prev => ({ ...prev, contact_phone: e.target.value }))}
-                        placeholder="+1 234 567 890"
+                        placeholder="+91 9876543210"
                         className="mt-1"
                       />
                     </div>
