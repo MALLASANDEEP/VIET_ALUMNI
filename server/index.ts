@@ -6,13 +6,9 @@ import { createClient } from "@supabase/supabase-js";
 dotenv.config();
 
 const app = express();
-
-// ✅ Basic security check for env
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
   throw new Error("Missing Supabase environment variables");
 }
-
-// ✅ Restrict CORS (change origin in production)
 app.use(
   cors({
     origin: true,
@@ -22,14 +18,10 @@ app.use(
 );
 
 app.use(express.json());
-
-// ✅ Admin client (SERVICE ROLE ONLY HERE)
 const supabaseAdmin = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
-
-// ================= DELETE USER =================
 app.post("/delete-user", async (req, res) => {
   const { userId } = req.body;
 
@@ -38,15 +30,13 @@ app.post("/delete-user", async (req, res) => {
   }
 
   try {
-    // 1️⃣ Delete from Auth
+
     const { error: authError } =
       await supabaseAdmin.auth.admin.deleteUser(userId);
 
     if (authError) {
       return res.status(400).json({ error: authError.message });
     }
-
-    // 2️⃣ Delete from Profiles table
     const { error: profileError } = await supabaseAdmin
       .from("profiles")
       .delete()
@@ -68,8 +58,6 @@ app.post("/delete-user", async (req, res) => {
     });
   }
 });
-
-// ================= HEALTH CHECK =================
 app.get("/", (_, res) => {
   res.send("Backend is running");
 });

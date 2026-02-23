@@ -195,9 +195,9 @@ const DepartmentFilter = () => {
 
       {/* FILTER BAR */}
       <main className="container mx-auto px-6 relative z-30 pb-20 -mt-10">
-        <div className="flex flex-wrap gap-4 bg-white rounded-3xl border p-4 shadow-2xl">
+        <div className="flex flex-wrap gap-4 bg-white rounded-3xl border p-4 shadow-2xl items-end">
           <div className="relative flex-1 min-w-[180px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 " />
             <Input
               placeholder="Name or company..."
               value={searchQuery}
