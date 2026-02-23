@@ -118,7 +118,7 @@ const AlumniMarquee = () => {
       {/* Section Header with Explore Button */}
       <div className="container mx-auto px-6 mb-16 relative flex items-center justify-between">
         <div className="text-center md:text-left">
-          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight">
+          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight items-center">
             {sectionTitle}
           </h2>
           <div className="h-1 w-20 bg-indigo-600 rounded-full" />
