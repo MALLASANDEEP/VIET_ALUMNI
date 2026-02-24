@@ -200,7 +200,7 @@ export const AlumniDashboard = ({ profile }: AlumniDashboardProps) => {
 
       {/* PROFILE POPUP */}
       <Dialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen}>
-        <DialogContent className="max-w-2xl p-0 overflow-hidden">
+        <DialogContent className="max-w-2xl p-0 overflow-hidden max-h-[90vh] overflow-y-auto">
           <div className="bg-gradient-to-r from-yellow-400 to-amber-500 p-6 text-white">
             <div className="flex items-center gap-5">
               <div className="w-24 h-24 rounded-full bg-white/20 backdrop-blur flex items-center justify-center overflow-hidden border-4 border-white shadow-lg">

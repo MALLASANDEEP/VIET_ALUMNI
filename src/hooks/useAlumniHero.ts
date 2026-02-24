@@ -1,6 +1,7 @@
 // src/hooks/useAlumniHero.ts
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useHero } from "./useHero";
 
 export interface AlumniHero {
   id: string;
