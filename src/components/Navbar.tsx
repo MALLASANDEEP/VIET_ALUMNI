@@ -1,14 +1,12 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import { Menu, X, Shield, LogIn, UserPlus, LayoutDashboard, LogOut } from "lucide-react";
+import { Menu, X, Shield, LogIn, UserPlus } from "lucide-react";
 import { Button } from "./ui/button";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth"; 
 import { useProfile } from "@/hooks/useProfile";
-import ProfileMenu from "@/components/ProfileMenu";
+import ProfileMenu from "./ProfileMenu";
 
-
-// Nav links
 const navLinks = [
   { name: "Home", href: "/" },
   { name: "Alumni", href: "/alumni" },
@@ -21,173 +19,101 @@ const Navbar = () => {
   const location = useLocation();
   const { user, isAdmin, signOut } = useAuth();
   const { data: profile } = useProfile();
-
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
-  };
-
-  // Scroll detection
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const isActive = (path: string) => location.pathname === path;
+  const handleSignOut = async () => {
+    await signOut();
+    setIsMobileMenuOpen(false);
+    navigate("/");
+  };
+
+  const navColorClass = isScrolled || isMobileMenuOpen ? "text-gray-900" : "text-white";
 
   return (
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled || isMobileMenuOpen
-          ? "bg-white/10 backdrop-blur-md shadow-md border-b border-border"
-          : "bg-transparent"
+        isScrolled || isMobileMenuOpen ? "bg-white/95 backdrop-blur-md shadow-lg py-2" : "bg-transparent py-4"
       }`}
     >
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-20">
+      <div className="container mx-auto px-6 flex items-center justify-between">
+        {/* Logo */}
+        <Link to="/" className="flex items-center transition-transform hover:scale-105">
+          <img src="https://www.viet.edu.in/img/header-imgs/viet-logo.svg" alt="VIET" className="h-12 w-auto" />
+        </Link>
 
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className={`transition-all duration-300 rounded-md ${isScrolled ? "bg-orange-500 p-1" : ""}`}>
-              <img
-                src="https://www.viet.edu.in/img/header-imgs/viet-logo.svg"
-                alt="VIET Logo"
-                className="h-16 w-auto"
-              />
-            </div>
-          </Link>
-
-          {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                to={link.href}
-                className={`font-medium transition-all duration-200 hover:text-gold relative ${
-                  isScrolled || isMobileMenuOpen ? "text-foreground" : "text-white"
-                } ${isActive(link.href) ? "text-gold" : ""}`}
-              >
-                {link.name}
-                {isActive(link.href) && (
-                  <motion.div
-                    layoutId="activeNav"
-                    className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gold"
-                  />
-                )}
-              </Link>
-            ))}
-          </div>
-
-          {/* Desktop Actions */}
-          <div className="hidden lg:flex items-center gap-4">
-            {user ? (
-              <>
-                {isAdmin && (
-                  <Link to="/admin">
-                    <Button variant="ghost" className={`gap-2 ${isScrolled ? "text-foreground hover:text-gold" : "text-white hover:text-gold"}`}>
-                      <Shield className="w-4 h-4" /> Admin
-                    </Button>
-                  </Link>
-                )}
-                {profile?.status === "approved" && (
-                  <Link to="/dashboard">
-                    <Button variant="ghost" className={`gap-2 ${isScrolled ? "text-foreground hover:text-gold" : "text-white hover:text-gold"}`}>
-                      <LayoutDashboard className="w-4 h-4" /> Dashboard
-                    </Button>
-                  </Link>
-                )}
-                <Button
-                  variant="ghost"
-                  className={`gap-2 ${isScrolled ? "text-foreground hover:text-gold" : "text-white hover:text-gold"}`}
-                  onClick={handleSignOut}
-                >
-                  <LogOut className="w-4 h-4" /> Logout
-                </Button>
-              </>
-            ) : (
-              <>
-                <Link to="/login">
-                  <Button variant="ghost" className={`gap-2 ${isScrolled ? "text-foreground hover:text-gold" : "text-white hover:text-gold"}`}>
-                    <LogIn className="w-4 h-4" /> Login
-                  </Button>
-                </Link>
-                <Link to="/register">
-                  <Button className="bg-gold hover:bg-gold-dark text-navy-dark font-bold rounded-full px-6 gap-2 border-none shadow-md transition-transform hover:scale-105">
-                    <UserPlus className="w-4 h-4" /> Register
-                  </Button>
-                </Link>
-              </>
-            )}
-          </div>
-
-          {/* Mobile Toggle */}
-          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 z-50">
-            {isMobileMenuOpen ? <X className="w-6 h-6 text-foreground" /> : <Menu className={`w-6 h-6 ${isScrolled ? "text-foreground" : "text-white"}`} />}
-          </button>
+        {/* Desktop Links */}
+        <div className="hidden lg:flex items-center gap-10">
+          {navLinks.map((link) => (
+            <Link 
+              key={link.name} 
+              to={link.href} 
+              className={`text-sm font-bold uppercase tracking-wider hover:text-orange-500 transition-colors ${navColorClass} ${location.pathname === link.href ? "text-orange-500" : ""}`}
+            >
+              {link.name}
+            </Link>
+          ))}
         </div>
+
+        {/* Auth / Profile */}
+        <div className="hidden lg:flex items-center gap-4">
+          {user ? (
+            <div className="flex items-center gap-4">
+              {isAdmin && (
+                <Link to="/admin">
+                  <Button variant="outline" className={`border-orange-500 text-orange-600 hover:bg-orange-50 ${isScrolled ? "" : "bg-white"}`}>
+                    <Shield className="w-4 h-4 mr-2"/> Admin
+                  </Button>
+                </Link>
+              )}
+              {profile && <ProfileMenu profile={profile} onLogout={handleSignOut} />}
+            </div>
+          ) : (
+            <>
+              <Link to="/login"><Button variant="ghost" className={navColorClass}>Login</Button></Link>
+              <Link to="/register"><Button className="bg-orange-500 hover:bg-orange-600 shadow-md rounded-full px-6">register</Button></Link>
+            </>
+          )}
+        </div>
+
+        {/* Mobile Toggle */}
+        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2">
+          {isMobileMenuOpen ? <X className="text-gray-900" /> : <Menu className={navColorClass} />}
+        </button>
       </div>
 
-      {/* Mobile Menu with stronger frosted look */}
+      {/* Mobile Menu */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="lg:hidden fixed top-20 left-4 right-4 z-40 bg-white/70 backdrop-blur-xl rounded-xl shadow-2xl border border-white/30 overflow-hidden"
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            exit={{ opacity: 0, y: -10 }} 
+            className="lg:hidden bg-white shadow-2xl absolute top-full left-0 w-full border-t border-gray-100 p-6 flex flex-col gap-6"
           >
-            <div className="flex flex-col py-6 px-6 gap-5">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-foreground font-semibold text-lg hover:text-gold transition-colors"
-                >
-                  {link.name}
-                </Link>
-              ))}
-
-              <hr className="border-white/40" />
-
-              {/* Auth Buttons */}
-              {user ? (
-                <>
-                  {isAdmin && (
-                    <Link to="/admin" className="text-foreground font-semibold text-lg hover:text-gold transition-colors">
-                      Admin
-                    </Link>
-                  )}
-                  {profile?.status === "approved" && (
-                    <Link to="/dashboard" className="text-foreground font-semibold text-lg hover:text-gold transition-colors">
-                      Dashboard
-                    </Link>
-                  )}
-                  <button
-                    onClick={handleSignOut}
-                    className="text-foreground font-semibold text-lg text-left hover:text-gold transition-colors"
-                  >
-                    
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link to="/login" className="text-foreground font-semibold text-lg hover:text-gold transition-colors">
-                    Login
-                  </Link>
-                  <Link to="/register" className="text-foreground font-semibold text-lg hover:text-gold transition-colors">
-                    Register
-                  </Link>
-                </>
-              )}
-            </div>
+            {navLinks.map(link => (
+              <Link key={link.name} to={link.href} onClick={() => setIsMobileMenuOpen(false)} className="text-xl font-bold text-gray-800">{link.name}</Link>
+            ))}
+            <div className="h-px bg-gray-100" />
+            {user ? (
+              <div className="flex flex-col gap-4">
+                <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="text-xl font-bold text-orange-500">Dashboard</Link>
+                <button onClick={handleSignOut} className="text-left text-xl font-bold text-red-500">Logout</button>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-4">
+                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="text-xl font-bold text-gray-800">Login</Link>
+                <Link to="/register" onClick={() => setIsMobileMenuOpen(false)}><Button className="w-full bg-orange-500 py-6 text-lg">Register</Button></Link>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
