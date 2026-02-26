@@ -13,7 +13,7 @@ if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
 
 app.use(
   cors({
-    origin: ["http://localhost:5173"], // change if needed
+    origin: true, // change if needed
     credentials: true,
   })
 );
