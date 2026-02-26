@@ -1,35 +1,29 @@
 import * as express from "express";
 import * as cors from "cors";
-import * as dotenv from "dotenv";
+import  * as dotenv from "dotenv";
 import { createClient } from "@supabase/supabase-js";
 
 dotenv.config();
 
 const app = express();
 
-
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
   throw new Error("Missing Supabase environment variables");
 }
 
-
 app.use(
   cors({
-    origin: ["http://localhost:5173"], // change if needed
-    origin: ["http://localhost:5173"], // change if needed
+    origin: true, // change if needed
     credentials: true,
   })
 );
 
 app.use(express.json());
 
-
 const supabaseAdmin = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
-
-/* ================= DELETE USER ================= */
 
 /* ================= DELETE USER ================= */
 app.post("/delete-user", async (req, res) => {
@@ -41,17 +35,13 @@ app.post("/delete-user", async (req, res) => {
 
   try {
     // 1️⃣ Delete from Auth
-    // 1️⃣ Delete from Auth
     const { error: authError } =
       await supabaseAdmin.auth.admin.deleteUser(userId);
 
     if (authError) {
       console.error("Auth delete error:", authError.message);
-      console.error("Auth delete error:", authError.message);
       return res.status(400).json({ error: authError.message });
     }
-
-    // 2️⃣ Delete from Profiles (safety cleanup)
 
     // 2️⃣ Delete from Profiles (safety cleanup)
     const { error: profileError } = await supabaseAdmin
@@ -61,24 +51,18 @@ app.post("/delete-user", async (req, res) => {
 
     if (profileError) {
       console.error("Profile delete error:", profileError.message);
-      console.error("Profile delete error:", profileError.message);
       return res.status(400).json({ error: profileError.message });
     }
 
     return res.status(200).json({
       success: true,
       message: "User deleted completely",
-      message: "User deleted completely",
     });
   } catch (err: any) {
     console.error("Server error:", err.message);
     return res.status(500).json({ error: "Internal Server Error" });
-    console.error("Server error:", err.message);
-    return res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
-/* ================= HEALTH CHECK ================= */
 
 /* ================= HEALTH CHECK ================= */
 app.get("/", (_, res) => {
