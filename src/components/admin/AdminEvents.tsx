@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useEvents } from "@/hooks/useEvents";
-import { motion, AnimatePresence } from "framer-motion";
 
 const AdminEvents = () => {
   const {
@@ -54,10 +53,12 @@ const AdminEvents = () => {
     }
 
     if (isEditing) {
+      // UPDATE (send id)
       updateEvent.mutate(eventData, {
         onSuccess: () => resetForm(),
       });
     } else {
+      // INSERT (DO NOT SEND ID)
       const { id, ...newEvent } = eventData;
 
       addEvent.mutate(
@@ -88,11 +89,11 @@ const AdminEvents = () => {
   };
 
   if (isLoading) {
-    return <div className="px-8 pb-8">Loading...</div>;
+    return <div className="p-8">Loading...</div>;
   }
 
   return (
-    <div className="px-8 pb-8 space-y-10">
+    <div className="p-8 space-y-10">
 
       {/* SECTION EDIT */}
       <div className="bg-white p-6 rounded shadow">
@@ -191,41 +192,34 @@ const AdminEvents = () => {
           <p className="text-gray-500">No events added yet.</p>
         )}
 
-        <AnimatePresence>
-          {events.map((event) => (
-            <motion.div
-              key={event.id}
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ duration: 0.3 }}
-              layout
-              className="bg-gray-100 p-4 rounded mb-3"
-            >
-              <h3 className="font-bold text-lg">{event.title}</h3>
-              <p>{event.description}</p>
-              <p className="text-sm text-gray-500 mt-1">
-                {event.event_date} | {event.venue}
-              </p>
+        {events.map((event) => (
+          <div
+            key={event.id}
+            className="bg-gray-100 p-4 rounded mb-3"
+          >
+            <h3 className="font-bold text-lg">{event.title}</h3>
+            <p>{event.description}</p>
+            <p className="text-sm text-gray-500 mt-1">
+              {event.event_date} | {event.venue}
+            </p>
 
-              <div className="flex gap-4 mt-3">
-                <button
-                  className="text-blue-600 font-medium"
-                  onClick={() => handleEdit(event)}
-                >
-                  Edit
-                </button>
+            <div className="flex gap-4 mt-3">
+              <button
+                className="text-blue-600 font-medium"
+                onClick={() => handleEdit(event)}
+              >
+                Edit
+              </button>
 
-                <button
-                  className="text-red-600 font-medium"
-                  onClick={() => handleDelete(event.id)}
-                >
-                  Delete
-                </button>
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
+              <button
+                className="text-red-600 font-medium"
+                onClick={() => handleDelete(event.id)}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
 
     </div>

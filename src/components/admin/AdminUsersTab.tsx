@@ -85,30 +85,41 @@ export const AdminUsersTab = () => {
 
   /* ===================== DELETE ===================== */
   const handleDelete = async (profile: Profile) => {
-    if (!confirm(`Delete ${profile.full_name}? This cannot be undone.`))
-      return;
+  if (!confirm(`Delete ${profile.full_name}? This cannot be undone.`))
+    return;
 
-    try {
-      const { error } = await supabase
-        .from("profiles")
-        .delete()
-        .eq("id", profile.id);
+  try {
+    const response = await fetch("http://localhost:4000/delete-user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: profile.user_id, // IMPORTANT: auth user id
+      }),
+    });
 
-      if (error) throw error;
+    const data = await response.json();
 
-      toast({
-        title: "Deleted",
-        description: `${profile.full_name} removed`
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive"
-      });
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to delete user");
     }
-  };
 
+    toast({
+      title: "Deleted",
+      description: `${profile.full_name} removed successfully`,
+    });
+
+    // Optional: refresh page or refetch users
+    window.location.reload();
+  } catch (error: any) {
+    toast({
+      title: "Error",
+      description: error.message,
+      variant: "destructive",
+    });
+  }
+};
   /* ===================== EDIT SAVE ===================== */
   const handleSaveEdit = async (profile: Profile) => {
     try {

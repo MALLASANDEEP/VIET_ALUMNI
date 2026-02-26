@@ -5,6 +5,8 @@ import { Button } from "./ui/button";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth"; 
 import { useProfile } from "@/hooks/useProfile";
+import ProfileMenu from "@/components/ProfileMenu";
+
 
 // Nav links
 const navLinks = [
@@ -172,7 +174,7 @@ const Navbar = () => {
                     onClick={handleSignOut}
                     className="text-foreground font-semibold text-lg text-left hover:text-gold transition-colors"
                   >
-                    Logout
+                    
                   </button>
                 </>
               ) : (
