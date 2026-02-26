@@ -1,12 +1,52 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Loader2, X, Linkedin, Building, ArrowRight, Compass
+  Loader2, X, Linkedin, Building, ArrowRight 
 } from "lucide-react";
 import { useAlumni } from "@/hooks/useAlumni";
 import { Link } from "react-router-dom"; 
 
-const AlumniCard = ({ alumni, onClick }: { alumni: any; onClick: (alumni: any) => void }) => (
+// --- Interfaces ---
+interface Alumni {
+  id: string;
+  name: string;
+  photo_url?: string;
+  department: string;
+  batch: string;
+  company?: string;
+  current_position?: string;
+  message?: string;
+  linkedin?: string;
+  lpa?: string | number;
+}
+
+interface AlumniCardProps {
+  alumni: Alumni;
+  onClick: (alumni: Alumni) => void;
+}
+
+// ✅ Helper function to shorten branch names
+const formatBranch = (dept: string) => {
+  const branchMap: { [key: string]: string } = {
+    "COMPUTER SCIENCE": "CSE",
+    "COMPUTER SCIENCE AND ENGINEERING": "CSE",
+    "ELECTRONICS AND COMMUNICATION ENGINEERING": "ECE",
+    "ELECTRONICS AND COMMUNICATION": "ECE",
+    "MECHANICAL ENGINEERING": "MECH",
+    "MECHANICAL": "MECH",
+    "ELECTRICAL AND ELECTRONICS ENGINEERING": "EEE",
+    "ELECTRICAL": "EEE",
+    "CIVIL ENGINEERING": "CIVIL",
+    "MASTER OF BUSINESS ADMINISTRATION": "MBA",
+    "MASTER OF COMPUTER APPLICATIONS": "MCA",
+    "BACHELOR OF BUSINESS ADMINISTRATION": "BBA",
+  };
+
+  const normalized = dept.toUpperCase().trim();
+  return branchMap[normalized] || normalized;
+};
+
+const AlumniCard: React.FC<AlumniCardProps> = ({ alumni, onClick }) => (
   <motion.div
     whileHover={{ y: -8 }}
     onClick={() => onClick(alumni)}
@@ -28,16 +68,17 @@ const AlumniCard = ({ alumni, onClick }: { alumni: any; onClick: (alumni: any) =
       <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
       
       <div className="absolute bottom-4 left-6 z-20">
-        <p className="text-indigo-400 text-[9px] font-black uppercase tracking-[0.2em] mb-1">
-          {alumni.department}
-        </p>
+        <span className="inline-block bg-indigo-600/90 backdrop-blur-sm text-white text-[8px] font-black uppercase tracking-[0.2em] mb-2 px-2 py-0.5 rounded-md shadow-lg">
+          {formatBranch(alumni.department)}
+        </span>
         <h3 className="text-white font-bold text-xl leading-tight">
           {alumni.name}
         </h3>
       </div>
 
       <div className="absolute top-4 right-4 z-20">
-        <span className="bg-white/10 backdrop-blur-md border border-white/20 text-black text-[10px] font-bold px-3 py-1 rounded-full">
+        {/* ✅ DARK GLASSY EFFECT ADDED HERE */}
+        <span className="bg-slate-900/60 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-xl">
           Batch {alumni.batch}
         </span>
       </div>
@@ -55,47 +96,30 @@ const AlumniCard = ({ alumni, onClick }: { alumni: any; onClick: (alumni: any) =
   </motion.div>
 );
 
-const AlumniMarquee = () => {
+const AlumniMarquee: React.FC = () => {
   const { data, isLoading } = useAlumni();
-  const [selectedAlumni, setSelectedAlumni] = useState<any | null>(null);
-  const [speedUp, setSpeedUp] = useState(false);
+  const [selectedAlumni, setSelectedAlumni] = useState<Alumni | null>(null);
 
-  /* ✅ SCROLL LOCK ADDED */
   useEffect(() => {
     if (selectedAlumni) {
       const scrollY = window.scrollY;
-
       document.body.setAttribute("data-scroll-y", scrollY.toString());
       document.body.style.position = "fixed";
       document.body.style.top = `-${scrollY}px`;
-      document.body.style.left = "0";
-      document.body.style.right = "0";
       document.body.style.width = "100%";
     } else {
       const storedScrollY = document.body.getAttribute("data-scroll-y");
-
       document.body.style.position = "";
       document.body.style.top = "";
-      document.body.style.left = "";
-      document.body.style.right = "";
-      document.body.style.width = "";
-
       if (storedScrollY) {
         window.scrollTo(0, parseInt(storedScrollY));
       }
     }
-
-    return () => {
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.left = "";
-      document.body.style.right = "";
-      document.body.style.width = "";
-    };
+    return () => { document.body.style.position = ""; };
   }, [selectedAlumni]);
 
-  const dbAlumni = data?.alumni || [];
-  const sectionTitle = data?.sectionTitle || "Distinguished Alumni";
+  const dbAlumni: Alumni[] = data?.alumni || [];
+  const sectionTitle: string = data?.sectionTitle || "Distinguished Alumni";
 
   const alumniData = [...dbAlumni].sort(
     (a, b) => (Number(b.lpa) || 0) - (Number(a.lpa) || 0)
@@ -114,20 +138,17 @@ const AlumniMarquee = () => {
 
   return (
     <section className="pt-6 pb-20 bg-[#f8fafc] overflow-hidden relative">
-
-      {/* Section Header with Explore Button */}
-      <div className="container mx-auto px-6 mb-16 relative flex items-center justify-between">
-        <div className="text-center md:text-left">
-          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight items-center">
+      <div className="container mx-auto px-6 mb-16 relative flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight">
             {sectionTitle}
           </h2>
-          <div className="h-1 w-20 bg-indigo-600 rounded-full" />
+          <div className="h-1 w-20 bg-indigo-600 rounded-full mx-auto" />
         </div>
 
-        {/* Explore Button */}
         <Link
           to="/alumni"
-          className="hidden md:inline-flex items-center gap-2 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-full transition-all"
+          className="hidden md:inline-flex absolute right-6 items-center gap-2 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-full transition-all"
         >
           Explore 
           <ArrowRight className="w-4 h-4" />
@@ -135,9 +156,7 @@ const AlumniMarquee = () => {
       </div>
 
       <div className="relative flex gap-4">
-        <div
-          className={`flex ${speedUp ? "animate-marquee-fast" : "animate-marquee"} hover:[animation-play-state:paused]`}
-        >
+        <div className="flex animate-marquee hover:[animation-play-state:paused]">
           {[...alumniData, ...alumniData].map((alumni, index) => (
             <AlumniCard
               key={`marquee-${alumni.id}-${index}`}
@@ -171,18 +190,14 @@ const AlumniMarquee = () => {
                 <X className="w-5 h-5" />
               </button>
 
-              {/* Header */}
-              <div className="relative h-44 flex items-center justify-center overflow-visible">
+              <div className="relative h-44 flex items-start justify-center pt-8 overflow-visible">
                 <div className="absolute inset-0 bg-orange-500/70 backdrop-blur-xl" />
                 <div className="absolute inset-0 bg-gradient-to-tr from-white/25 to-transparent" />
-
                 <img
                   src="https://www.viet.edu.in/img/header-imgs/viet-logo.svg"
                   alt="College Logo"
-                  className="relative z-10 max-h-20 max-w-[70%] object-contain"
+                  className="relative z-10 max-h-16 max-w-[70%] object-contain"
                 />
-
-                {/* Lowered Profile Image */}
                 <div className="absolute right-6 top-full -translate-y-1/3 z-20">
                   <img
                     src={selectedAlumni.photo_url || ""}
@@ -194,7 +209,7 @@ const AlumniMarquee = () => {
 
               <div className="pt-18 px-8 pb-8 bg-white">
                 <div className="mb-4 border-b border-slate-200 pb-4">
-                  <h2 className="text-2l font-bold text-slate-900 tracking-tight">
+                  <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
                     {selectedAlumni.name}
                   </h2>
                   <p className="mt-1 text-xs font-semibold text-slate-500 uppercase tracking-wider">
@@ -204,7 +219,7 @@ const AlumniMarquee = () => {
 
                 <div className="flex flex-wrap items-center gap-2 mb-5">
                   <span className="px-3 py-1.5 text-xs font-bold bg-indigo-600 text-white rounded-full uppercase tracking-wide">
-                    {selectedAlumni.department}
+                    {formatBranch(selectedAlumni.department)}
                   </span>
                   <span className="px-3 py-1.5 text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full uppercase tracking-wide">
                     Batch {selectedAlumni.batch}
@@ -218,15 +233,9 @@ const AlumniMarquee = () => {
                         <Building className="w-5 h-5 text-indigo-600" />
                       </div>
                       <div>
-                        <p className="text-xs font-bold uppercase text-slate-400 tracking-wider">
-                          Current Position
-                        </p>
-                        <p className="text-base font-semibold text-slate-900">
-                          {selectedAlumni.current_position || "Professional"}
-                        </p>
-                        <p className="text-sm font-medium text-indigo-600">
-                          {selectedAlumni.company || "Industry Leader"}
-                        </p>
+                        <p className="text-xs font-bold uppercase text-slate-400 tracking-wider">Current Position</p>
+                        <p className="text-base font-semibold text-slate-900">{selectedAlumni.current_position || "Professional"}</p>
+                        <p className="text-sm font-medium text-indigo-600">{selectedAlumni.company || "Industry Leader"}</p>
                       </div>
                     </div>
                   </div>
@@ -234,9 +243,7 @@ const AlumniMarquee = () => {
 
                 {selectedAlumni.message && (
                   <div className="bg-indigo-50 border-l-4 border-indigo-600 rounded-lg p-4 mb-5">
-                    <p className="text-sm text-slate-700 italic">
-                      "{selectedAlumni.message}"
-                    </p>
+                    <p className="text-sm text-slate-700 italic">"{selectedAlumni.message}"</p>
                   </div>
                 )}
 
@@ -251,7 +258,6 @@ const AlumniMarquee = () => {
                     Connect on LinkedIn
                   </a>
                 )}
-
               </div>
             </motion.div>
           </motion.div>
