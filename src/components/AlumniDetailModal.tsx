@@ -1,7 +1,20 @@
 import { motion } from "framer-motion";
 import { X, Linkedin, Briefcase, Quote } from "lucide-react";
 
-const AlumniDetailModal = ({ alumni, onClose }: { alumni: any; onClose: () => void }) => {
+interface Alumni {
+  name: string;
+  photo_url?: string;
+  department: string;
+  batch: string;
+  message?: string;
+  bio?: string;
+  description?: string;
+  current_position?: string;
+  company?: string;
+  linkedin?: string;
+}
+
+const AlumniDetailModal = ({ alumni, onClose }: { alumni: Alumni; onClose: () => void }) => {
   const bio = alumni.message || alumni.bio || alumni.description || "";
 
   return (
