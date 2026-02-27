@@ -46,8 +46,8 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center transition-transform hover:scale-105">
-          <img src="https://www.viet.edu.in/img/header-imgs/viet-logo.svg" alt="VIET" className="h-12 w-auto" />
+        <Link to="/" className={isScrolled ? "flex items-center hover:scale-105 transition-all duration-300 rounded-md bg-orange-500 p-2" : "flex items-center transition-transform hover:scale-105"}>
+          <img src="https://www.viet.edu.in/img/header-imgs/viet-logo.svg" alt="VIET" className="h-12 w-auto "  />
         </Link>
 
         {/* Desktop Links */}
