@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Menu, X, Shield } from "lucide-react";
 import { Button } from "./ui/button";
 import { Link, useNavigate, useLocation } from "react-router-dom";
@@ -21,7 +21,11 @@ const Navbar = () => {
   const { data: profile } = useProfile();
 
   const [isScrolled, setIsScrolled] = useState(false);
+
+  // 🔥 Persistent menu state
+  const navMenuRef = useRef(false);
   const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -30,10 +34,14 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // 🔥 Restore menu state after route change
+  useEffect(() => {
+    setIsNavMenuOpen(navMenuRef.current);
+  }, [location.pathname]);
+
   const handleSignOut = async () => {
     await signOut();
     setIsMobileMenuOpen(false);
-    setIsNavMenuOpen(false);
     navigate("/");
   };
 
@@ -51,7 +59,7 @@ const Navbar = () => {
       }`}
     >
       <div className="container mx-auto px-6 flex items-center justify-between relative">
-        
+
         <Link
           to="/"
           className={
@@ -63,7 +71,7 @@ const Navbar = () => {
           <img
             src="https://www.viet.edu.in/img/header-imgs/viet-logo.svg"
             alt="VIET"
-            className="h-12 w-auto"
+            className="h-12  w-110 object-contain"
           />
         </Link>
 
@@ -76,17 +84,16 @@ const Navbar = () => {
                 animate={{ width: "auto", opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
                 transition={{ duration: 0.3 }}
-                className="overflow-hidden flex items-center gap-6 border-2 border-orange-500 rounded-full px-6 py-2"
+                className="overflow-hidden flex items-center gap-6 rounded-full px-6 py-2 bg-orange-500"
               >
                 {navLinks.map((link) => (
                   <Link
                     key={link.name}
                     to={link.href}
-                    onClick={() => setIsNavMenuOpen(false)}
                     className={`font-semibold whitespace-nowrap transition-all ${
                       location.pathname === link.href
-                        ? "text-orange-500"
-                        : "text-gray-800 hover:text-orange-600"
+                        ? "text-black rounded-md px-3 py-1"
+                        : "text-white"
                     }`}
                   >
                     {link.name}
@@ -97,10 +104,13 @@ const Navbar = () => {
           </AnimatePresence>
 
           <button
-            onClick={() => setIsNavMenuOpen(!isNavMenuOpen)}
+            onClick={() => {
+              navMenuRef.current = !navMenuRef.current;
+              setIsNavMenuOpen(navMenuRef.current);
+            }}
             className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300 ${
               isElevated
-                ? "border-orange-500 text-orange-600"
+                ? "border-orange-500 text-orange-600 bg-white"
                 : "border-white text-white"
             }`}
           >
