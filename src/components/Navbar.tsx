@@ -71,7 +71,7 @@ const Navbar = () => {
           <img
             src="https://www.viet.edu.in/img/header-imgs/viet-logo.svg"
             alt="VIET"
-            className="h-12  w-110 object-contain"
+            className="h-14  w-200 object-contain"
           />
         </Link>
 
