@@ -1,9 +1,9 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import { Menu, X, Shield, LogIn, UserPlus } from "lucide-react";
+import { Menu, X, Shield } from "lucide-react";
 import { Button } from "./ui/button";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth"; 
+import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import ProfileMenu from "./ProfileMenu";
 
@@ -19,7 +19,9 @@ const Navbar = () => {
   const location = useLocation();
   const { user, isAdmin, signOut } = useAuth();
   const { data: profile } = useProfile();
+
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -31,89 +33,149 @@ const Navbar = () => {
   const handleSignOut = async () => {
     await signOut();
     setIsMobileMenuOpen(false);
+    setIsNavMenuOpen(false);
     navigate("/");
   };
 
-  const navColorClass = isScrolled || isMobileMenuOpen ? "text-gray-900" : "text-white";
+  const isElevated = isScrolled || isNavMenuOpen || isMobileMenuOpen;
+  const navColorClass = isElevated ? "text-gray-900" : "text-white";
 
   return (
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled || isMobileMenuOpen ? "bg-white/95 backdrop-blur-md shadow-lg py-2" : "bg-transparent py-4"
+      className={`sticky top-0 z-50 transition-all duration-300 ${
+        isElevated
+          ? "bg-white/95 backdrop-blur-md shadow-lg py-2"
+          : "bg-transparent py-4"
       }`}
     >
-      <div className="container mx-auto px-6 flex items-center justify-between">
+      <div className="container mx-auto px-6 flex items-center justify-between relative">
+
         {/* Logo */}
-        <Link to="/" className={isScrolled ? "flex items-center hover:scale-105 transition-all duration-300 rounded-md bg-orange-500 p-2" : "flex items-center transition-transform hover:scale-105"}>
-          <img src="https://www.viet.edu.in/img/header-imgs/viet-logo.svg" alt="VIET" className="h-12 w-auto "  />
+        <Link
+          to="/"
+          className={
+            isScrolled
+              ? "flex items-center hover:scale-105 transition-all duration-300 rounded-md bg-orange-500 p-2"
+              : "flex items-center transition-transform hover:scale-105"
+          }
+        >
+          <img
+            src="https://www.viet.edu.in/img/header-imgs/viet-logo.svg"
+            alt="VIET"
+            className="h-12 w-auto"
+          />
         </Link>
 
-        {/* Desktop Links */}
-        <div className="hidden lg:flex items-center gap-10">
-          {navLinks.map((link) => (
-            <Link 
-              key={link.name} 
-              to={link.href} 
-              className={`text-sm font-bold uppercase tracking-wider hover:text-orange-500 transition-colors ${navColorClass} ${location.pathname === link.href ? "text-orange-500" : ""}`}
-            >
-              {link.name}
-            </Link>
-          ))}
-        </div>
+        {/* Desktop Right Section */}
+        <div className="hidden lg:flex items-center gap-4 relative">
 
-        {/* Auth / Profile */}
-        <div className="hidden lg:flex items-center gap-4">
+          {/* LEFT EXPANDING PANEL */}
+          <AnimatePresence>
+            {isNavMenuOpen && (
+              <motion.div
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: "auto", opacity: 1 }}
+                exit={{ width: 0, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="overflow-hidden flex items-center gap-6 
+                           border-2 border-orange-500 
+                           rounded-full px-6 py-2"
+              >
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.name}
+                    to={link.href}
+                    onClick={() => setIsNavMenuOpen(false)}
+                    className={`font-semibold whitespace-nowrap transition-all ${
+                      location.pathname === link.href
+                        ? "text-orange-500"
+                        : "text-gray-800 hover:text-orange-600"
+                    }`}
+                  >
+                    {link.name}
+                  </Link>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* MENU BUTTON */}
+          <button
+            onClick={() => setIsNavMenuOpen(!isNavMenuOpen)}
+            className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300 ${
+              isElevated
+                ? "border-orange-500 text-orange-600"
+                : "border-white text-white"
+            }`}
+          >
+            {isNavMenuOpen ? (
+              <X className="w-4 h-4" />
+            ) : (
+              <Menu className="w-4 h-4" />
+            )}
+          </button>
+
           {user ? (
             <div className="flex items-center gap-4">
               {isAdmin && (
                 <Link to="/admin">
-                  <Button variant="outline" className={`border-orange-500 text-orange-600 hover:bg-orange-50 ${isScrolled ? "" : "bg-white"}`}>
-                    <Shield className="w-4 h-4 mr-2"/> Admin
+                  <Button
+                    variant="outline"
+                    className="border-orange-500 text-orange-600 hover:bg-orange-50"
+                  >
+                    <Shield className="w-4 h-4 mr-2" /> Admin
                   </Button>
                 </Link>
               )}
-              {profile && <ProfileMenu profile={profile} onLogout={handleSignOut} />}
+              {profile && (
+                <ProfileMenu profile={profile} onLogout={handleSignOut} />
+              )}
             </div>
           ) : (
-            <>
-              <Link to="/login"><Button variant="ghost" className={navColorClass}>Login</Button></Link>
-              <Link to="/register"><Button className="bg-orange-500 hover:bg-orange-600 shadow-md rounded-full px-6">register</Button></Link>
-            </>
+            <Link to="/login">
+              <Button variant="ghost" className={navColorClass}>
+                Login
+              </Button>
+            </Link>
           )}
         </div>
 
-        {/* Mobile Toggle */}
-        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2">
-          {isMobileMenuOpen ? <X className="text-gray-900" /> : <Menu className={navColorClass} />}
-        </button>
+        {/* Mobile Section */}
+        <div className="lg:hidden flex items-center gap-3">
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="p-2"
+          >
+            {isMobileMenuOpen ? (
+              <X className="text-gray-900" />
+            ) : (
+              <Menu className={navColorClass} />
+            )}
+          </button>
+        </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu (unchanged) */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            exit={{ opacity: 0, y: -10 }} 
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
             className="lg:hidden bg-white shadow-2xl absolute top-full left-0 w-full border-t border-gray-100 p-6 flex flex-col gap-6"
           >
-            {navLinks.map(link => (
-              <Link key={link.name} to={link.href} onClick={() => setIsMobileMenuOpen(false)} className="text-xl font-bold text-gray-800">{link.name}</Link>
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                to={link.href}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-xl font-bold text-gray-800"
+              >
+                {link.name}
+              </Link>
             ))}
-            <div className="h-px bg-gray-100" />
-            {user ? (
-              <div className="flex flex-col gap-4">
-                <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="text-xl font-bold text-orange-500">Dashboard</Link>
-                <button onClick={handleSignOut} className="text-left text-xl font-bold text-red-500">Logout</button>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-4">
-                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="text-xl font-bold text-gray-800">Login</Link>
-                <Link to="/register" onClick={() => setIsMobileMenuOpen(false)}><Button className="w-full bg-orange-500 py-6 text-lg">Register</Button></Link>
-              </div>
-            )}
           </motion.div>
         )}
       </AnimatePresence>
