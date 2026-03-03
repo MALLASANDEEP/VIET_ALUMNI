@@ -86,7 +86,7 @@ const Navbar = () => {
                     className={`font-semibold whitespace-nowrap transition-all ${
                       location.pathname === link.href
                         ? "text-orange-500"
-                        : "text-gray-800 hover:text-orange-600"
+                        : "text-white hover:text-orange-600"
                     }`}
                   >
                     {link.name}

@@ -16,7 +16,6 @@ const AdminEvents = () => {
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-
   const [eventData, setEventData] = useState({
     id: "",
     title: "",
@@ -27,7 +26,6 @@ const AdminEvents = () => {
 
   const [isEditing, setIsEditing] = useState(false);
 
-  // Sync section
   useEffect(() => {
     if (section) {
       setTitle(section.title || "");
@@ -36,14 +34,25 @@ const AdminEvents = () => {
   }, [section]);
 
   const resetForm = () => {
-    setEventData({
-      id: "",
-      title: "",
-      description: "",
-      event_date: "",
-      venue: "",
-    });
+    setEventData({ id: "", title: "", description: "", event_date: "", venue: "" });
     setIsEditing(false);
+  };
+
+  const handleSaveSection = () => {
+    if (!title.trim()) {
+      alert("Please provide a section title.");
+      return;
+    }
+    updateSection.mutate(
+      { title, description },
+      {
+        onSuccess: () => alert("Section header updated successfully!"),
+        onError: (error) => {
+          console.error("Save failed:", error);
+          alert("Save failed. Check console for details.");
+        }
+      }
+    );
   };
 
   const handleSubmit = () => {
@@ -53,175 +62,118 @@ const AdminEvents = () => {
     }
 
     if (isEditing) {
-      // UPDATE (send id)
-      updateEvent.mutate(eventData, {
-        onSuccess: () => resetForm(),
-      });
+      updateEvent.mutate(eventData, { onSuccess: () => resetForm() });
     } else {
-      // INSERT (DO NOT SEND ID)
       const { id, ...newEvent } = eventData;
-
-      addEvent.mutate(
-        {
-          ...newEvent,
-          type: "event",
-        },
-        {
-          onSuccess: () => resetForm(),
-        }
-      );
+      addEvent.mutate({ ...newEvent, type: "event" }, { onSuccess: () => resetForm() });
     }
   };
 
-  const handleEdit = (event: any) => {
-    setEventData({
-      id: event.id,
-      title: event.title || "",
-      description: event.description || "",
-      event_date: event.event_date || "",
-      venue: event.venue || "",
-    });
-    setIsEditing(true);
-  };
-
-  const handleDelete = (id: string) => {
-    deleteEvent.mutate(id);
-  };
-
-  if (isLoading) {
-    return <div className="p-8">Loading...</div>;
-  }
+  if (isLoading) return <div className="p-8 text-center font-medium">Loading Events...</div>;
 
   return (
-    <div className="p-8 space-y-10">
-
-      {/* SECTION EDIT */}
-      <div className="bg-white p-6 rounded shadow">
-        <h2 className="font-bold mb-4 text-lg">Edit Section</h2>
-
-        <input
-          className="border p-2 w-full mb-3 rounded"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Section Title"
-        />
-
-        <textarea
-          className="border p-2 w-full mb-3 rounded"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Section Description"
-        />
-
-        <button
-          className="bg-indigo-600 text-white px-4 py-2 rounded"
-          onClick={() =>
-            updateSection.mutate({ title, description })
-          }
-        >
-          Save Section
-        </button>
-      </div>
-
-      {/* ADD / EDIT EVENT */}
-      <div className="bg-white p-6 rounded shadow">
-        <h2 className="font-bold mb-4 text-lg">
-          {isEditing ? "Edit Event" : "Add Event"}
-        </h2>
-
-        <input
-          className="border p-2 w-full mb-3 rounded"
-          placeholder="Event Title"
-          value={eventData.title}
-          onChange={(e) =>
-            setEventData({ ...eventData, title: e.target.value })
-          }
-        />
-
-        <textarea
-          className="border p-2 w-full mb-3 rounded"
-          placeholder="Description"
-          value={eventData.description}
-          onChange={(e) =>
-            setEventData({ ...eventData, description: e.target.value })
-          }
-        />
-
-        <input
-          type="date"
-          className="border p-2 w-full mb-3 rounded"
-          value={eventData.event_date}
-          onChange={(e) =>
-            setEventData({ ...eventData, event_date: e.target.value })
-          }
-        />
-
-        <input
-          className="border p-2 w-full mb-3 rounded"
-          placeholder="Venue"
-          value={eventData.venue}
-          onChange={(e) =>
-            setEventData({ ...eventData, venue: e.target.value })
-          }
-        />
-
-        <div className="flex gap-4">
+    <div className="p-8 space-y-10 max-w-4xl mx-auto">
+      {/* SECTION HEADER EDIT */}
+      <div className="bg-white p-6 rounded shadow-md border border-gray-100">
+        <h2 className="font-bold mb-4 text-xl text-gray-800">Edit Section Header</h2>
+        <div className="space-y-3">
+          <input
+            className="border p-2 w-full rounded focus:ring-2 focus:ring-indigo-500 outline-none"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Section Title"
+          />
+          <textarea
+            className="border p-2 w-full rounded focus:ring-2 focus:ring-indigo-500 outline-none"
+            rows={3}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Section Description"
+          />
           <button
-            className="bg-green-600 text-white px-4 py-2 rounded"
-            onClick={handleSubmit}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded transition-colors"
+            onClick={handleSaveSection}
+            disabled={updateSection.isPending}
           >
-            {isEditing ? "Update Event" : "Add Event"}
+            {updateSection.isPending ? "Saving..." : "Save Section Settings"}
           </button>
-
-          {isEditing && (
-            <button
-              className="bg-gray-400 text-white px-4 py-2 rounded"
-              onClick={resetForm}
-            >
-              Cancel
-            </button>
-          )}
         </div>
       </div>
 
-      {/* EVENTS LIST */}
-      <div>
-        <h2 className="font-bold mb-4 text-lg">All Events</h2>
+      {/* PREVIEW BOX */}
+      <div className="bg-indigo-50 p-6 rounded-lg border border-indigo-100">
+        <h1 className="text-3xl font-bold text-indigo-900">{section?.title || "Welcome to Events"}</h1>
+        <p className="text-indigo-700 mt-2">{section?.description || "Stay updated with our latest gatherings."}</p>
+      </div>
 
-        {events.length === 0 && (
-          <p className="text-gray-500">No events added yet.</p>
-        )}
+      {/* EVENT FORM */}
+      <div className="bg-white p-6 rounded shadow-md border border-gray-100">
+  <h2 className="font-bold mb-4 text-xl text-gray-800">
+    {isEditing ? "Edit Event" : "Add Event"}
+  </h2>
 
-        {events.map((event) => (
-          <div
-            key={event.id}
-            className="bg-gray-100 p-4 rounded mb-3"
-          >
-            <h3 className="font-bold text-lg">{event.title}</h3>
-            <p>{event.description}</p>
-            <p className="text-sm text-gray-500 mt-1">
-              {event.event_date} | {event.venue}
-            </p>
+  <div className="space-y-3">
+    <input
+      className="border p-2 w-full rounded"
+      placeholder="Event Title"
+      value={eventData.title}
+      onChange={(e) =>
+        setEventData({ ...eventData, title: e.target.value })
+      }
+    /> 
+    <textarea
+      className="border p-2 w-full rounded"
+      placeholder="Event Description"
+      value={eventData.description}
+      onChange={(e) =>
+        setEventData({ ...eventData, description: e.target.value })
+      }
+    />
 
-            <div className="flex gap-4 mt-3">
-              <button
-                className="text-blue-600 font-medium"
-                onClick={() => handleEdit(event)}
-              >
-                Edit
-              </button>
+    <div className="grid grid-cols-2 gap-4">
+      <input
+        type="date"
+        className="border p-2 rounded"
+        value={eventData.event_date}
+        onChange={(e) =>
+          setEventData({ ...eventData, event_date: e.target.value })
+        }
+      />
 
-              <button
-                className="text-red-600 font-medium"
-                onClick={() => handleDelete(event.id)}
-              >
-                Delete
-              </button>
+      <input
+        className="border p-2 rounded"
+        placeholder="Venue"
+        value={eventData.venue}
+        onChange={(e) =>
+          setEventData({ ...eventData, venue: e.target.value })
+        }
+      />
+    </div>
+
+    <button
+      className="bg-green-600 text-white px-6 py-2 rounded"
+      onClick={handleSubmit}
+    >
+      {isEditing ? "Update" : "Publish"}
+    </button>
+  </div>
+</div>
+
+      {/* EVENT LIST */}
+      <div className="space-y-4">
+        {events.map((e) => (
+          <div key={e.id} className="bg-white border p-4 rounded flex justify-between">
+            <div>
+              <p className="font-bold">{e.title}</p>
+              <p className="text-sm text-gray-500">{e.event_date} @ {e.venue}</p>
+            </div>
+            <div className="space-x-4">
+              <button className="text-blue-600" onClick={() => { setEventData(e as any); setIsEditing(true); }}>Edit</button>
+              <button className="text-red-600" onClick={() => deleteEvent.mutate(e.id)}>Delete</button>
             </div>
           </div>
         ))}
       </div>
-
     </div>
   );
 };
