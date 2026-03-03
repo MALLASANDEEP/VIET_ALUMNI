@@ -302,3 +302,5 @@ export const StudentDashboard = ({ profile }: StudentDashboardProps) => {
     </Tabs>
   );
 };
+
+export default StudentDashboard;
