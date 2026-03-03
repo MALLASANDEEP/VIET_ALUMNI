@@ -71,7 +71,7 @@ const Navbar = () => {
           <img
             src="https://www.viet.edu.in/img/header-imgs/viet-logo.svg"
             alt="VIET"
-            className="h-12  w-110 object-contain"
+            className="h-14  w-200 object-contain"
           />
         </Link>
 
@@ -92,12 +92,9 @@ const Navbar = () => {
                     to={link.href}
                     className={`font-semibold whitespace-nowrap transition-all ${
                       location.pathname === link.href
-
-                        ? "text-orange-500"
-                        : "text-white hover:text-orange-600"
-
-
-               }`}
+                        ? "text-black rounded-md px-3 py-1"
+                        : "text-white"
+                    }`}
                   >
                     {link.name}
                   </Link>
@@ -116,10 +113,6 @@ const Navbar = () => {
                 ? "border-orange-500 text-orange-600 bg-white"
                 : "border-white text-white"
             }`}
-
-
-
-            
           >
             {isNavMenuOpen ? (
               <X className="w-4 h-4" />

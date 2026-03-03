@@ -52,7 +52,7 @@ const EventsSection = () => {
   return (
     <section
       id="events"
-      className="pt-0 pb-20 bg-gray-50 relative scroll-mt-24"
+      className="pt-0 pb-4 bg-gray-50 relative scroll-mt-24"
       ref={sectionRef}
     >
       <div className="max-w-4xl mx-auto px-2">
