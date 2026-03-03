@@ -37,6 +37,7 @@ import {
   useDeleteMentorshipOffer 
 } from "@/hooks/useMentorship";
 import ProfileMenu from "@/components/ProfileMenu"; 
+import { StudentDashboard } from "./StudentDashboard";
 
 interface AlumniDashboardProps {
   profile: Profile;
@@ -60,7 +61,6 @@ export const AlumniDashboard = ({ profile }: AlumniDashboardProps) => {
     window.location.href = "/";
   };
 
-  // ================= JOB FORM STATE =================
   const [jobForm, setJobForm] = useState<any>({
     title: "",
     company: profile.company || "",
@@ -79,7 +79,6 @@ export const AlumniDashboard = ({ profile }: AlumniDashboardProps) => {
     apply_link: "",
   });
 
-  // ================= MENTOR FORM STATE =================
   const [mentorForm, setMentorForm] = useState({
     title: "",
     description: "",
@@ -144,13 +143,21 @@ export const AlumniDashboard = ({ profile }: AlumniDashboardProps) => {
         alumni_id: profile.id,
         title: mentorForm.title,
         description: mentorForm.description,
-        expertise_areas: mentorForm.expertise_areas ? mentorForm.expertise_areas.split(",").map(s => s.trim()) : undefined,
+        expertise_areas: mentorForm.expertise_areas
+          ? mentorForm.expertise_areas.split(",").map(s => s.trim())
+          : undefined,
         contact_email: mentorForm.contact_email || undefined,
         contact_phone: mentorForm.contact_phone || undefined,
       });
       toast({ title: "Success", description: "Mentorship offer created!" });
       setMentorDialogOpen(false);
-      setMentorForm({ title: "", description: "", expertise_areas: "", contact_email: profile.email, contact_phone: profile.phone || "" });
+      setMentorForm({
+        title: "",
+        description: "",
+        expertise_areas: "",
+        contact_email: profile.email,
+        contact_phone: profile.phone || "",
+      });
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     }
@@ -165,14 +172,13 @@ export const AlumniDashboard = ({ profile }: AlumniDashboardProps) => {
     }
   };
 
-return (
-  <div className="space-y-6">
-    <div className="flex justify-end">
-      <ProfileMenu profile={profile} onLogout={handleLogout} />
-    </div>
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-end">
+        <ProfileMenu profile={profile} onLogout={handleLogout} />
+      </div>
 
-    {/* MAIN TABS */}
-    <Tabs defaultValue="jobs" className="space-y-6">
+      <Tabs defaultValue="jobs" className="space-y-6">
         <TabsList className="bg-card border border-border">
           <TabsTrigger value="jobs" className="gap-2">
             <Briefcase className="w-4 h-4" />
@@ -181,6 +187,10 @@ return (
           <TabsTrigger value="mentoring" className="gap-2">
             <Users className="w-4 h-4" />
             Mentorship ({myMentorships?.length || 0})
+          </TabsTrigger>
+          <TabsTrigger value="explore" className="gap-2">
+            <User className="w-4 h-4" />
+            Explore
           </TabsTrigger>
         </TabsList>
 
@@ -209,83 +219,71 @@ return (
                       <Input placeholder="Software Engineer" value={jobForm.title}
                         onChange={(e) => setJobForm({ ...jobForm, title: e.target.value })} />
                     </div>
-
                     <div className="space-y-2">
                       <Label>Company *</Label>
                       <Input placeholder="Google" value={jobForm.company}
                         onChange={(e) => setJobForm({ ...jobForm, company: e.target.value })} />
                     </div>
-
                     <div className="space-y-2">
                       <Label>Description *</Label>
                       <Textarea placeholder="Job description..." rows={4}
                         value={jobForm.description}
                         onChange={(e) => setJobForm({ ...jobForm, description: e.target.value })} />
                     </div>
-
                     <div className="space-y-2">
                       <Label>Location</Label>
                       <Input placeholder="Remote, Hyderabad..."
                         value={jobForm.location}
                         onChange={(e) => setJobForm({ ...jobForm, location: e.target.value })} />
                     </div>
-
                     <div className="space-y-2">
                       <Label>Job Type</Label>
                       <Input placeholder="Internship / Full-time"
                         value={jobForm.job_type}
                         onChange={(e) => setJobForm({ ...jobForm, job_type: e.target.value })} />
                     </div>
-
                     <div className="space-y-2">
                       <Label>Experience Required</Label>
                       <Input placeholder="e.g. 2+ years"
                         value={jobForm.experience_required}
                         onChange={(e) => setJobForm({ ...jobForm, experience_required: e.target.value })} />
                     </div>
-
                     <div className="space-y-2">
                       <Label>Salary Range</Label>
                       <Input placeholder="e.g. 10LPA - 15LPA"
                         value={jobForm.salary_range}
                         onChange={(e) => setJobForm({ ...jobForm, salary_range: e.target.value })} />
                     </div>
-
                     <div className="space-y-2">
                       <Label>Skills Required (comma separated)</Label>
                       <Input placeholder="React, Node.js, SQL"
                         value={jobForm.skills_required}
                         onChange={(e) => setJobForm({ ...jobForm, skills_required: e.target.value })} />
                     </div>
-
                     <div className="space-y-2">
                       <Label>Responsibilities</Label>
                       <Textarea placeholder="Key responsibilities..."
                         value={jobForm.responsibilities}
                         onChange={(e) => setJobForm({ ...jobForm, responsibilities: e.target.value })} />
                     </div>
-
                     <div className="space-y-2">
                       <Label>Eligibility</Label>
                       <Textarea placeholder="Who can apply?"
                         value={jobForm.eligibility}
                         onChange={(e) => setJobForm({ ...jobForm, eligibility: e.target.value })} />
                     </div>
-
                     <div className="space-y-2">
                       <Label>Selection Process</Label>
                       <Textarea placeholder="Interview rounds..."
                         value={jobForm.selection_process}
                         onChange={(e) => setJobForm({ ...jobForm, selection_process: e.target.value })} />
                     </div>
-
                     <div className="space-y-2">
                       <Label>Application Deadline</Label>
                       <Input type="date"
                         value={jobForm.application_deadline}
                         onChange={(e) => setJobForm({ ...jobForm, application_deadline: e.target.value })} />
                     </div>
-
                     <div className="space-y-2">
                       <Label>Referral Type</Label>
                       <Select value={jobForm.referral_type}
@@ -298,21 +296,18 @@ return (
                         </SelectContent>
                       </Select>
                     </div>
-
                     <div className="space-y-2">
                       <Label>Referral Slots</Label>
                       <Input type="number"
                         value={jobForm.referral_slots}
                         onChange={(e) => setJobForm({ ...jobForm, referral_slots: Number(e.target.value) })} />
                     </div>
-
                     <div className="space-y-2">
                       <Label>Apply Link</Label>
                       <Input placeholder="https://company.com/careers"
                         value={jobForm.apply_link}
                         onChange={(e) => setJobForm({ ...jobForm, apply_link: e.target.value })} />
                     </div>
-
                     <Button className="w-full btn-gold"
                       onClick={handleCreateJob}
                       disabled={createJob.isPending}>
@@ -430,8 +425,8 @@ return (
                         onChange={(e) => setMentorForm(prev => ({ ...prev, contact_phone: e.target.value }))}
                       />
                     </div>
-                    <Button 
-                      className="w-full btn-gold" 
+                    <Button
+                      className="w-full btn-gold"
                       onClick={handleCreateMentorship}
                       disabled={createMentorship.isPending}
                     >
@@ -484,6 +479,12 @@ return (
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* EXPLORE TAB — StudentDashboard renders here, same level as jobs & mentoring */}
+        <TabsContent value="explore">
+          <StudentDashboard profile={profile} />
+        </TabsContent>
+
       </Tabs>
     </div>
   );
