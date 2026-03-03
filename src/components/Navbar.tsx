@@ -25,7 +25,7 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    const handleScroll = () => setIsScrolled(window.scrollY > 100);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -37,22 +37,21 @@ const Navbar = () => {
     navigate("/");
   };
 
-  const isElevated = isScrolled || isNavMenuOpen || isMobileMenuOpen;
+  const isElevated = isScrolled;
   const navColorClass = isElevated ? "text-gray-900" : "text-white";
 
   return (
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className={`sticky top-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
         isElevated
-          ? "bg-white/95 backdrop-blur-md shadow-lg py-2"
+          ? "bg-white/10 backdrop-blur-xl shadow-lg py-2 border-b border-white/20"
           : "bg-transparent py-4"
       }`}
     >
       <div className="container mx-auto px-6 flex items-center justify-between relative">
-
-        {/* Logo */}
+        
         <Link
           to="/"
           className={
@@ -68,10 +67,8 @@ const Navbar = () => {
           />
         </Link>
 
-        {/* Desktop Right Section */}
         <div className="hidden lg:flex items-center gap-4 relative">
 
-          {/* LEFT EXPANDING PANEL */}
           <AnimatePresence>
             {isNavMenuOpen && (
               <motion.div
@@ -79,9 +76,7 @@ const Navbar = () => {
                 animate={{ width: "auto", opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
                 transition={{ duration: 0.3 }}
-                className="overflow-hidden flex items-center gap-6 
-                           border-2 border-orange-500 
-                           rounded-full px-6 py-2"
+                className="overflow-hidden flex items-center gap-6 border-2 border-orange-500 rounded-full px-6 py-2"
               >
                 {navLinks.map((link) => (
                   <Link
@@ -101,7 +96,6 @@ const Navbar = () => {
             )}
           </AnimatePresence>
 
-          {/* MENU BUTTON */}
           <button
             onClick={() => setIsNavMenuOpen(!isNavMenuOpen)}
             className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300 ${
@@ -142,7 +136,6 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Mobile Section */}
         <div className="lg:hidden flex items-center gap-3">
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -157,7 +150,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu (unchanged) */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
