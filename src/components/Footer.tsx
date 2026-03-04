@@ -9,6 +9,7 @@ import {
   Instagram,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -37,23 +38,50 @@ const Footer = () => {
           </div>
 
           {/* Quick Links */}
+          
           <div>
-            <h4 className="font-serif text-base font-semibold mb-4 text-white">
-              Quick Links
-            </h4>
-            <ul className="space-y-2 text-sm">
-              {["Home", "Alumni", "Gallery", "About Us"].map((link) => (
-                <li key={link}>
-                  <a
-                    href="#"
-                    className="text-white/70 hover:text-gold transition-colors"
-                  >
-                    {link}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+  <h4 className="font-serif text-base font-semibold mb-4 text-white">
+    Quick Links
+  </h4>
+
+  <ul className="space-y-2 text-sm">
+    <li>
+      <Link
+        to="/"
+        className="text-white/70 hover:text-gold transition-colors"
+      >
+        Home
+      </Link>
+    </li>
+
+    <li>
+      <Link
+        to="/alumni"
+        className="text-white/70 hover:text-gold transition-colors"
+      >
+        Alumni
+      </Link>
+    </li>
+
+    <li>
+      <Link
+        to="/gallery"
+        className="text-white/70 hover:text-gold transition-colors"
+      >
+        Gallery
+      </Link>
+    </li>
+
+    <li>
+      <Link
+        to="/aboutus"
+        className="text-white/70 hover:text-gold transition-colors"
+      >
+        About Us
+      </Link>
+    </li>
+  </ul>
+</div>
 
           {/* Departments */}
           <div>
