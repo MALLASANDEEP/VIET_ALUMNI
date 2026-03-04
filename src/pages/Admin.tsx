@@ -111,21 +111,23 @@ const Admin = () => {
         <Tabs defaultValue="users" className="flex gap-6">
 
           {/* LEFT SIDEBAR – FIXED */}
-          <TabsList
-            className="
-              w-64
-              flex
-              flex-col
-              items-start
-              justify-start
-              gap-1
-              bg-transparent
-             
-              rounded-xl
-              p-3
-              
-            "
-          >
+         <TabsList
+  className="
+    w-64
+    flex
+    flex-col
+    items-start
+    justify-start
+    gap-1
+    bg-transparent
+    rounded-xl
+    p-3
+    sticky
+    top-24
+    h-fit
+    self-start
+  "
+>
             <TabsTrigger value="users" className="w-full justify-start gap-2">
               <Users className="w-4 h-4" />
               Users
