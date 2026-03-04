@@ -21,11 +21,8 @@ const Navbar = () => {
   const { data: profile } = useProfile();
 
   const [isScrolled, setIsScrolled] = useState(false);
-
-  // 🔥 Persistent menu state
   const navMenuRef = useRef(false);
   const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
-
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -34,7 +31,6 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // 🔥 Restore menu state after route change
   useEffect(() => {
     setIsNavMenuOpen(navMenuRef.current);
   }, [location.pathname]);
@@ -71,10 +67,11 @@ const Navbar = () => {
           <img
             src="https://www.viet.edu.in/img/header-imgs/viet-logo.svg"
             alt="VIET"
-            className="h-14  w-200 object-contain"
+            className="h-14 w-200 object-contain"
           />
         </Link>
 
+        {/* Desktop */}
         <div className="hidden lg:flex items-center gap-4 relative">
 
           <AnimatePresence>
@@ -146,6 +143,7 @@ const Navbar = () => {
           )}
         </div>
 
+        {/* Mobile Toggle */}
         <div className="lg:hidden flex items-center gap-3">
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -160,13 +158,15 @@ const Navbar = () => {
         </div>
       </div>
 
+      {/* Mobile Menu */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="lg:hidden bg-white shadow-2xl absolute top-full left-0 w-full border-t border-gray-100 p-6 flex flex-col gap-6"
+            transition={{ duration: 0.3 }}
+            className="lg:hidden bg-white shadow-2xl absolute top-full left-0 w-full border-t border-gray-100 p-6 flex flex-col gap-6 z-40"
           >
             {navLinks.map((link) => (
               <Link
@@ -178,6 +178,35 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
+
+            {user ? (
+              <>
+                {isAdmin && (
+                  <Link
+                    to="/admin"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="text-xl font-bold text-orange-600"
+                  >
+                    Admin
+                  </Link>
+                )}
+
+                <button
+                  onClick={handleSignOut}
+                  className="text-xl font-bold text-red-600 text-left"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-xl font-bold text-blue-600"
+              >
+                Login
+              </Link>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
