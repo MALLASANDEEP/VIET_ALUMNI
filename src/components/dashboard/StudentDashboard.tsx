@@ -10,7 +10,9 @@ import {
   Clock, 
   IndianRupee, 
   Loader2,
-  ChevronRight
+  ChevronRight,
+  UserPlus,
+  MessageCircle
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,27 +23,56 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useJobPostings } from "@/hooks/useJobPostings";
 import { useMentorshipOffers } from "@/hooks/useMentorship";
 import { Profile } from "@/hooks/useProfile";
+import ConnectionPage from "./ConnectionPage";
+import ChatSection from "./ChatSection";
+import { useAcceptedConnections } from "@/hooks/useConnections";
+import { useAllConnectionsUnread } from "@/hooks/useAllConnectionsUnread";
 
 interface StudentDashboardProps {
   profile: Profile;
+  showNetworkTabs?: boolean;
 }
 
-export const StudentDashboard = ({ profile }: StudentDashboardProps) => {
+export const StudentDashboard = ({ profile, showNetworkTabs = true }: StudentDashboardProps) => {
   const { data: jobs, isLoading: jobsLoading } = useJobPostings();
   const { data: mentorships, isLoading: mentorshipsLoading } = useMentorshipOffers();
   const [selectedJob, setSelectedJob] = useState<any>(null);
+  
+  // Real-time chat notifications - runs immediately on dashboard mount
+  const { data: connections = [] } = useAcceptedConnections(profile.id);
+  const { totalUnread } = useAllConnectionsUnread(connections, profile.id);
 
   return (
     <Tabs defaultValue="jobs" className="space-y-6">
-      <TabsList className="bg-card border border-border">
-        <TabsTrigger value="jobs" className="gap-2">
+      <TabsList className="w-full justify-start overflow-x-auto whitespace-nowrap rounded-xl border border-border bg-card p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <TabsTrigger value="jobs" className="gap-2 px-3 text-xs sm:text-sm">
           <Briefcase className="w-4 h-4" />
           Job Postings
         </TabsTrigger>
-        <TabsTrigger value="mentors" className="gap-2">
+        <TabsTrigger value="mentors" className="gap-2 px-3 text-xs sm:text-sm">
           <Users className="w-4 h-4" />
           Mentors
         </TabsTrigger>
+        {showNetworkTabs && (
+          <TabsTrigger value="connections" className="gap-2 px-3 text-xs sm:text-sm">
+            <UserPlus className="w-4 h-4" />
+            Connections
+          </TabsTrigger>
+        )}
+        {showNetworkTabs && (
+          <TabsTrigger value="chat" className="gap-2 relative px-3 text-xs sm:text-sm">
+            <MessageCircle className="w-4 h-4" />
+            Chat
+            {totalUnread > 0 && (
+              <>
+                <Badge variant="destructive" className="ml-1 text-[10px]">
+                  {totalUnread}
+                </Badge>
+                <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              </>
+            )}
+          </TabsTrigger>
+        )}
       </TabsList>
 
       {/* Job Postings Tab */}
@@ -299,6 +330,21 @@ export const StudentDashboard = ({ profile }: StudentDashboardProps) => {
           </CardContent>
         </Card>
       </TabsContent>
+
+      {showNetworkTabs && (
+        <TabsContent value="connections">
+          <ConnectionPage profile={profile} />
+        </TabsContent>
+      )}
+
+      {showNetworkTabs && (
+        <TabsContent value="chat">
+          <ChatSection 
+            profile={profile} 
+            unreadBadge={totalUnread}
+          />
+        </TabsContent>
+      )}
     </Tabs>
   );
 };

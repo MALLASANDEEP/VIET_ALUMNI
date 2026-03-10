@@ -11,7 +11,8 @@ import {
   Building,
   Loader2,
   User,
-  LogOut
+  UserPlus,
+  MessageCircle
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,8 +37,11 @@ import {
   useCreateMentorshipOffer, 
   useDeleteMentorshipOffer 
 } from "@/hooks/useMentorship";
-import ProfileMenu from "@/components/ProfileMenu"; 
 import { StudentDashboard } from "./StudentDashboard";
+import ConnectionPage from "./ConnectionPage";
+import ChatSection from "./ChatSection";
+import { useAcceptedConnections } from "@/hooks/useConnections";
+import { useAllConnectionsUnread } from "@/hooks/useAllConnectionsUnread";
 
 interface AlumniDashboardProps {
   profile: Profile;
@@ -52,14 +56,13 @@ export const AlumniDashboard = ({ profile }: AlumniDashboardProps) => {
   const createMentorship = useCreateMentorshipOffer();
   const deleteMentorship = useDeleteMentorshipOffer();
   
+  // Real-time chat notifications - runs immediately on dashboard mount
+  const { data: connections = [] } = useAcceptedConnections(profile.id);
+  const { totalUnread } = useAllConnectionsUnread(connections, profile.id);
+  
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
   const [jobDialogOpen, setJobDialogOpen] = useState(false);
   const [mentorDialogOpen, setMentorDialogOpen] = useState(false);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    window.location.href = "/";
-  };
 
   const [jobForm, setJobForm] = useState<any>({
     title: "",
@@ -174,30 +177,42 @@ export const AlumniDashboard = ({ profile }: AlumniDashboardProps) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end">
-        <ProfileMenu profile={profile} onLogout={handleLogout} />
-      </div>
-
       <Tabs defaultValue="jobs" className="space-y-6">
-        <TabsList className="bg-card border border-border">
-          <TabsTrigger value="jobs" className="gap-2">
+        <TabsList className="w-full justify-start overflow-x-auto whitespace-nowrap rounded-xl border border-border bg-card p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <TabsTrigger value="jobs" className="gap-2 px-3 text-xs sm:text-sm">
             <Briefcase className="w-4 h-4" />
             My Job Posts ({myJobs?.length || 0})
           </TabsTrigger>
-          <TabsTrigger value="mentoring" className="gap-2">
+          <TabsTrigger value="mentoring" className="gap-2 px-3 text-xs sm:text-sm">
             <Users className="w-4 h-4" />
             Mentorship ({myMentorships?.length || 0})
           </TabsTrigger>
-          <TabsTrigger value="explore" className="gap-2">
+          <TabsTrigger value="explore" className="gap-2 px-3 text-xs sm:text-sm">
             <User className="w-4 h-4" />
             Explore
+          </TabsTrigger>
+          <TabsTrigger value="connections" className="gap-2 px-3 text-xs sm:text-sm">
+            <UserPlus className="w-4 h-4" />
+            Connections
+          </TabsTrigger>
+          <TabsTrigger value="chat" className="gap-2 relative px-3 text-xs sm:text-sm">
+            <MessageCircle className="w-4 h-4" />
+            Chat
+            {totalUnread > 0 && (
+              <>
+                <Badge variant="destructive" className="ml-1 text-[10px]">
+                  {totalUnread}
+                </Badge>
+                <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              </>
+            )}
           </TabsTrigger>
         </TabsList>
 
         {/* JOB POSTINGS TAB */}
         <TabsContent value="jobs">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <CardTitle className="font-serif flex items-center gap-2">
                 <Briefcase className="w-5 h-5 text-gold" />
                 My Job Postings
@@ -482,7 +497,18 @@ export const AlumniDashboard = ({ profile }: AlumniDashboardProps) => {
 
         {/* EXPLORE TAB — StudentDashboard renders here, same level as jobs & mentoring */}
         <TabsContent value="explore">
-          <StudentDashboard profile={profile} />
+          <StudentDashboard profile={profile} showNetworkTabs={false} />
+        </TabsContent>
+
+        <TabsContent value="connections">
+          <ConnectionPage profile={profile} />
+        </TabsContent>
+
+        <TabsContent value="chat">
+          <ChatSection 
+            profile={profile} 
+            unreadBadge={totalUnread}
+          />
         </TabsContent>
 
       </Tabs>

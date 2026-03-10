@@ -216,6 +216,135 @@ export type Database = {
           },
         ]
       }
+      chat_messages: {
+        Row: {
+          connection_id: string
+          content: string
+          created_at: string
+          id: string
+          sender_profile_id: string
+        }
+        Insert: {
+          connection_id: string
+          content: string
+          created_at?: string
+          id?: string
+          sender_profile_id: string
+        }
+        Update: {
+          connection_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          sender_profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_messages_sender_profile_id_fkey"
+            columns: ["sender_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      connection_requests: {
+        Row: {
+          created_at: string
+          id: string
+          message: string | null
+          receiver_profile_id: string
+          responded_at: string | null
+          sender_profile_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          receiver_profile_id: string
+          responded_at?: string | null
+          sender_profile_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          receiver_profile_id?: string
+          responded_at?: string | null
+          sender_profile_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connection_requests_receiver_profile_id_fkey"
+            columns: ["receiver_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connection_requests_sender_profile_id_fkey"
+            columns: ["sender_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      connections: {
+        Row: {
+          created_at: string
+          id: string
+          profile_one_id: string
+          profile_two_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          profile_one_id: string
+          profile_two_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          profile_one_id?: string
+          profile_two_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connections_profile_one_id_fkey"
+            columns: ["profile_one_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_profile_two_id_fkey"
+            columns: ["profile_two_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           batch: string | null

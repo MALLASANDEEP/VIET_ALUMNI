@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
-import { Menu, X, Shield } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Menu, X, Shield, User, LayoutDashboard, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -21,8 +21,6 @@ const Navbar = () => {
   const { data: profile } = useProfile();
 
   const [isScrolled, setIsScrolled] = useState(false);
-  const navMenuRef = useRef(false);
-  const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -30,10 +28,6 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  useEffect(() => {
-    setIsNavMenuOpen(navMenuRef.current);
-  }, [location.pathname]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -54,7 +48,7 @@ const Navbar = () => {
           : "bg-transparent py-4"
       }`}
     >
-      <div className="container mx-auto px-6 flex items-center justify-between relative">
+      <div className="container mx-auto px-4 sm:px-6 flex items-center justify-between relative">
 
         <Link
           to="/"
@@ -67,56 +61,27 @@ const Navbar = () => {
           <img
             src="https://www.viet.edu.in/img/header-imgs/viet-logo.svg"
             alt="VIET"
-            className="h-14 w-200 object-contain"
+            className="h-11 sm:h-14 w-auto object-contain"
           />
         </Link>
 
         {/* Desktop */}
         <div className="hidden lg:flex items-center gap-4 relative">
-
-          <AnimatePresence>
-            {isNavMenuOpen && (
-              <motion.div
-                initial={{ width: 0, opacity: 0 }}
-                animate={{ width: "auto", opacity: 1 }}
-                exit={{ width: 0, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className="overflow-hidden flex items-center gap-6 rounded-full px-6 py-2 bg-orange-500"
+          <div className="flex items-center gap-6">
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                to={link.href}
+                className={`font-semibold whitespace-nowrap transition-all ${
+                  location.pathname === link.href
+                    ? "text-orange-500"
+                    : navColorClass
+                }`}
               >
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.name}
-                    to={link.href}
-                    className={`font-semibold whitespace-nowrap transition-all ${
-                      location.pathname === link.href
-                        ? "text-black rounded-md px-3 py-1"
-                        : "text-white"
-                    }`}
-                  >
-                    {link.name}
-                  </Link>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <button
-            onClick={() => {
-              navMenuRef.current = !navMenuRef.current;
-              setIsNavMenuOpen(navMenuRef.current);
-            }}
-            className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300 ${
-              isElevated
-                ? "border-orange-500 text-orange-600 bg-white"
-                : "border-white text-white"
-            }`}
-          >
-            {isNavMenuOpen ? (
-              <X className="w-4 h-4" />
-            ) : (
-              <Menu className="w-4 h-4" />
-            )}
-          </button>
+                {link.name}
+              </Link>
+            ))}
+          </div>
 
           {user ? (
             <div className="flex items-center gap-4">
@@ -145,14 +110,35 @@ const Navbar = () => {
 
         {/* Mobile Toggle */}
         <div className="lg:hidden flex items-center gap-3">
+          {user && profile && (
+            <Link
+              to="/dashboard"
+              className="flex items-center gap-2 rounded-full bg-white/90 px-2.5 py-1.5 shadow-sm"
+            >
+              <div className="h-7 w-7 rounded-full overflow-hidden bg-orange-100 flex items-center justify-center">
+                {profile.photo_url ? (
+                  <img
+                    src={profile.photo_url}
+                    alt={profile.full_name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <User className="h-4 w-4 text-orange-600" />
+                )}
+              </div>
+              <span className="max-w-[90px] truncate text-xs font-semibold text-gray-800">
+                {profile.full_name}
+              </span>
+            </Link>
+          )}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2"
+            className="p-2 rounded-full bg-white/90 shadow-sm"
           >
             {isMobileMenuOpen ? (
               <X className="text-gray-900" />
             ) : (
-              <Menu className={navColorClass} />
+              <Menu className="text-gray-900" />
             )}
           </button>
         </div>
@@ -168,6 +154,36 @@ const Navbar = () => {
             transition={{ duration: 0.3 }}
             className="lg:hidden bg-white shadow-2xl absolute top-full left-0 w-full border-t border-gray-100 p-6 flex flex-col gap-6 z-40"
           >
+            {user && profile && (
+              <div className="rounded-2xl border border-orange-100 bg-orange-50 p-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-11 w-11 rounded-full overflow-hidden bg-orange-100 flex items-center justify-center">
+                    {profile.photo_url ? (
+                      <img
+                        src={profile.photo_url}
+                        alt={profile.full_name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <User className="h-5 w-5 text-orange-600" />
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-gray-900 truncate">{profile.full_name}</p>
+                    <p className="text-xs text-gray-500 truncate">{profile.email}</p>
+                  </div>
+                </div>
+                <Link
+                  to="/dashboard"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-orange-700"
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  Go to Dashboard
+                </Link>
+              </div>
+            )}
+
             {navLinks.map((link) => (
               <Link
                 key={link.name}
@@ -193,8 +209,9 @@ const Navbar = () => {
 
                 <button
                   onClick={handleSignOut}
-                  className="text-xl font-bold text-red-600 text-left"
+                  className="inline-flex items-center gap-2 text-xl font-bold text-red-600 text-left"
                 >
+                  <LogOut className="h-5 w-5" />
                   Logout
                 </button>
               </>

@@ -54,11 +54,11 @@ const ProfileMenu = ({ profile, onLogout }: ProfileMenuProps) => {
       </DropdownMenu>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-2xl p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+        <DialogContent className="max-w-[95vw] md:max-w-2xl p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
           {/* Cover Header */}
-          <div className="bg-gradient-to-br from-orange-500 to-amber-600 p-8 text-white">
-            <div className="flex items-center gap-6">
-              <div className="h-24 w-24 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center overflow-hidden border-4 border-white/50 shadow-xl">
+          <div className="bg-gradient-to-br from-orange-500 to-amber-600 p-5 md:p-8 text-white">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+              <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center overflow-hidden border-4 border-white/50 shadow-xl">
                 {profile.photo_url ? (
                   <img src={profile.photo_url} alt={profile.full_name} className="h-full w-full object-cover" />
                 ) : (
@@ -66,8 +66,8 @@ const ProfileMenu = ({ profile, onLogout }: ProfileMenuProps) => {
                 )}
               </div>
               <div>
-                <h3 className="text-3xl font-bold tracking-tight">{profile.full_name}</h3>
-                <p className="text-lg opacity-90 font-medium">
+                <h3 className="text-2xl sm:text-3xl font-bold tracking-tight">{profile.full_name}</h3>
+                <p className="text-sm sm:text-lg opacity-90 font-medium">
                   {profile.current_position} {profile.company && `at ${profile.company}`}
                 </p>
               </div>
@@ -75,7 +75,7 @@ const ProfileMenu = ({ profile, onLogout }: ProfileMenuProps) => {
           </div>
 
           {/* Body Content */}
-          <div className="p-8 space-y-8 max-h-[70vh] overflow-y-auto bg-white">
+          <div className="p-5 md:p-8 space-y-8 max-h-[70vh] overflow-y-auto bg-white">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Academic Info */}
               <div className="space-y-4">

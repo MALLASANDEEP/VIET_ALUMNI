@@ -150,7 +150,7 @@ const AboutUs = () => {
       </div>
 
       {/* CTA */}
-      <section className="py-6 text-center bg-[url('/images/hero-bg.jpg')] bg-cover bg-center relative">
+      <section className="py-6 text-center bg-gradient-to-r from-primary/20 via-gold/20 to-primary/20 relative">
         <div className="max-w-4xl mx-auto p-12 bg-black/20 backdrop-blur-md rounded-3xl shadow-xl">
           <h2 className="text-4xl font-bold mb-6 text-black/90">
             Join the Visakha College Family

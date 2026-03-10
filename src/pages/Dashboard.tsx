@@ -1,29 +1,33 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
   Loader2, 
-  LogOut, 
   GraduationCap, 
   Briefcase, 
   Users, 
   Clock, 
   CheckCircle,
   XCircle,
-  Home
+  Home,
+  Bell
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { StudentDashboard } from "@/components/dashboard/StudentDashboard";
 import { AlumniDashboard } from "@/components/dashboard/AlumniDashboard";
+import DashboardNotificationBell from "@/components/dashboard/DashboardNotificationBell";
+import ProfileMenu from "@/components/ProfileMenu";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading, signOut, isAdmin } = useAuth();
   const { data: profile, isLoading: profileLoading } = useProfile();
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -152,35 +156,42 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-navy-dark text-primary-foreground sticky top-0 z-50">
+      <header className="bg-gradient-to-r from-navy-dark via-navy-dark to-primary sticky top-0 z-50 border-b border-border/30 shadow-lg">
         <div className="container mx-auto px-6">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gold flex items-center justify-center">
+          <div className="flex items-center justify-between h-20">
+            {/* Left: Logo and Title */}
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-gold flex items-center justify-center shadow-lg">
                 <GraduationCap className="w-6 h-6 text-navy-dark" />
               </div>
-              <div>
-                <h1 className="font-semibold">
-                  {profile.requested_role === "alumni" ? "Alumni" : "Student"} Dashboard
+              <div className="hidden sm:block">
+                <h1 className="font-serif font-bold text-lg text-primary-foreground">
+                  {profile?.requested_role === "alumni" ? "Alumni" : "Student"} Hub
                 </h1>
-                <p className="text-xs text-primary-foreground/60">{profile.full_name}</p>
+                <p className="text-xs text-primary-foreground/70">{profile?.full_name}</p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
+
+            {/* Center: Quick status */}
+            <div className="hidden md:flex items-center gap-2 text-sm text-primary-foreground/80">
+              <CheckCircle className="w-4 h-4 text-gold" />
+              <span>Account Active</span>
+            </div>
+
+            {/* Right: Notification Bell, Home, Profile Menu */}
+            <div className="flex items-center gap-2">
+              <DashboardNotificationBell profile={profile} />
               <Link to="/">
-                <Button variant="ghost" className="text-primary-foreground hover:text-gold gap-2">
+                <Button 
+                  variant="ghost" 
+                  className="text-primary-foreground hover:bg-primary/20 gap-2 h-10"
+                >
                   <Home className="w-4 h-4" />
-                  Home
+                  <span className="hidden sm:inline">Home</span>
                 </Button>
               </Link>
-              <Button 
-                variant="ghost" 
-                className="text-primary-foreground hover:text-gold gap-2"
-                onClick={handleSignOut}
-              >
-                <LogOut className="w-4 h-4" />
-                Logout
-              </Button>
+              <div className="w-px h-6 bg-primary-foreground/20 mx-1" />
+              {profile && <ProfileMenu profile={profile} onLogout={handleSignOut} />}
             </div>
           </div>
         </div>
