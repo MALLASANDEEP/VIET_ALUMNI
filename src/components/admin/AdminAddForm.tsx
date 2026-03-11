@@ -75,8 +75,8 @@ const AdminManageAdmins = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-xl p-6">
+    <div className="min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8">
+      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-xl p-4 sm:p-6">
         <h1 className="text-2xl font-bold mb-6">Manage Admins</h1>
 
         {/* Add Admin Form */}
@@ -145,7 +145,7 @@ const AdminManageAdmins = () => {
             {admins.map((admin) => (
               <div
                 key={admin.user_id}
-                className="flex justify-between items-center border p-3 rounded"
+                className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 border p-3 rounded"
               >
                 <div>
                   <p className="font-medium">
@@ -158,7 +158,7 @@ const AdminManageAdmins = () => {
 
                 <button
                   onClick={() => handleDelete(admin.user_id)}
-                  className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700 transition"
+                  className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700 transition w-full sm:w-auto"
                 >
                   Remove
                 </button>

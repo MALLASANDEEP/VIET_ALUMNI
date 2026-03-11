@@ -172,16 +172,16 @@ export const AdminAlumniTab = () => {
     <div className="space-y-8">
       {/* TITLE CARD */}
       <Card className="border-indigo-100 shadow-md">
-        <CardHeader className="bg-slate-50/50 flex items-center gap-2">
+        <CardHeader className="bg-slate-50/50 flex flex-row items-center gap-2">
           <Settings2 className="w-5 h-5 text-indigo-600"/>
           <CardTitle className="text-lg">Section Customization</CardTitle>
         </CardHeader>
-        <CardContent className="pt-6 flex gap-4 items-end">
-          <div className="flex-1">
+        <CardContent className="pt-6 flex flex-col sm:flex-row gap-4 sm:items-end">
+          <div className="flex-1 w-full">
             <Label>Main Section Title</Label>
             <Input placeholder={currentTitle} value={newSectionTitle} onChange={(e)=>setNewSectionTitle(e.target.value)} className="mt-1"/>
           </div>
-          <Button onClick={handleUpdateTitle} disabled={updateTitle.isPending} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+          <Button onClick={handleUpdateTitle} disabled={updateTitle.isPending} className="bg-indigo-600 hover:bg-indigo-700 text-white w-full sm:w-auto">
             {updateTitle.isPending ? <Loader2 className="w-4 h-4 animate-spin"/> : "Update Title"}
           </Button>
         </CardContent>
@@ -189,12 +189,12 @@ export const AdminAlumniTab = () => {
 
       {/* ALUMNI MANAGEMENT */}
       <Card className="border-border/50 shadow-xl">
-        <CardHeader className="flex items-center justify-between bg-muted/30">
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-muted/30">
           <div>
             <CardTitle className="font-serif text-2xl">Manage Alumni</CardTitle>
             <p className="text-sm text-muted-foreground">Add, edit and organize your distinguished alumni profiles</p>
           </div>
-          <Button className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2" onClick={() => {setShowForm(!showForm); setEditingId(null);}}>
+          <Button className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2 w-full sm:w-auto" onClick={() => {setShowForm(!showForm); setEditingId(null);}}>
             {showForm ? <X className="w-4 h-4"/> : <UserPlus className="w-4 h-4"/>}{showForm ? "Cancel":"Add Alumni"}
           </Button>
         </CardHeader>
@@ -224,13 +224,13 @@ export const AdminAlumniTab = () => {
                   <div><Label>LinkedIn</Label><Input value={formData.linkedin||""} onChange={e=>setFormData({...formData,linkedin:e.target.value})}/></div>
                   <div><Label>LPA</Label><Input type="number" value={formData.lpa||""} onChange={e=>setFormData({...formData,lpa:e.target.value?Number(e.target.value):null})}/></div>
                   <div className="md:col-span-2"><Label>Message</Label><textarea value={formData.message||""} onChange={e=>setFormData({...formData,message:e.target.value})} className="w-full border rounded px-2 py-1"/></div>
-                  <div className="md:col-span-2 flex items-center gap-4">
-                    <Button type="button" variant="outline" onClick={()=>fileInputRef.current?.click()} disabled={uploading}>{uploading?"Uploading...":"Upload Photo"}</Button>
-                    {photoUrl && <span className="text-sm text-indigo-600">{photoUrl.split("/").pop()}</span>}
+                  <div className="md:col-span-2 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                    <Button type="button" variant="outline" onClick={()=>fileInputRef.current?.click()} disabled={uploading} className="w-full sm:w-auto">{uploading?"Uploading...":"Upload Photo"}</Button>
+                    {photoUrl && <span className="text-sm text-indigo-600 break-all">{photoUrl.split("/").pop()}</span>}
                     <input type="file" className="hidden" ref={fileInputRef} onChange={handlePhotoUpload}/>
                   </div>
                 </div>
-                <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white">{editingId?"Update Alumni":"Add Alumni"}</Button>
+                <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white w-full sm:w-auto">{editingId?"Update Alumni":"Add Alumni"}</Button>
               </motion.form>
             )}
           </AnimatePresence>
@@ -254,7 +254,7 @@ export const AdminAlumniTab = () => {
                         <p className="text-sm text-muted-foreground">{alumni.department} - Class of {alumni.batch}</p>
                       </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <Button variant="outline" size="sm" onClick={()=>handleEdit(alumni)}><Edit className="w-4 h-4"/> Edit</Button>
                       <Button variant="destructive" size="sm" onClick={()=>handleDelete(alumni.id)}><Trash2 className="w-4 h-4"/> Delete</Button>
                     </div>

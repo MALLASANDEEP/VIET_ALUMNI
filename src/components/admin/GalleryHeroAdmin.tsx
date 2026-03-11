@@ -101,8 +101,8 @@ const GalleryHeroAdmin = () => {
   };
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow space-y-4">
-      <h2 className="text-xl font-bold">Edit Gallery Hero</h2>
+    <div className="bg-white rounded-2xl p-4 sm:p-6 shadow space-y-4">
+      <h2 className="text-lg sm:text-xl font-bold">Edit Gallery Hero</h2>
 
       <input
         className="w-full p-3 bg-slate-100 rounded-xl"
@@ -132,11 +132,19 @@ const GalleryHeroAdmin = () => {
         />
       </label>
 
+      {bgImage && (
+        <img
+          src={bgImage}
+          alt="Gallery hero preview"
+          className="w-full h-44 sm:h-56 object-cover rounded-xl border"
+        />
+      )}
+
     
 
       <button
         onClick={saveText}
-        className="flex items-center gap-2 bg-black text-white px-5 py-2 rounded-xl"
+        className="flex items-center justify-center gap-2 bg-black text-white px-5 py-2 rounded-xl w-full sm:w-auto"
       >
         <Save size={16} />
         Save

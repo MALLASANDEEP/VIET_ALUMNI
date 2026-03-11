@@ -81,9 +81,9 @@ export const AdminGalleryTab = () => {
 
   return (
     <Card>
-      <CardHeader className="flex justify-between items-center">
+      <CardHeader className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <CardTitle>Manage Gallery</CardTitle>
-        <Button onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+        <Button onClick={() => fileInputRef.current?.click()} disabled={uploading} className="w-full sm:w-auto">
           <Upload className="w-4 h-4 mr-2" /> Upload
         </Button>
         <input
@@ -97,8 +97,8 @@ export const AdminGalleryTab = () => {
 
       <CardContent>
         {previewUrl && (
-          <div className="mb-6 flex gap-6">
-            <img src={previewUrl} className="w-40 h-40 object-cover rounded-lg" />
+          <div className="mb-6 flex flex-col sm:flex-row gap-4 sm:gap-6">
+            <img src={previewUrl} className="w-full sm:w-40 h-48 sm:h-40 object-cover rounded-lg" />
             <div className="flex-1 space-y-3">
               <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
               <Input
@@ -115,7 +115,7 @@ export const AdminGalleryTab = () => {
                   <option key={cat}>{cat}</option>
                 ))}
               </select>
-              <Button onClick={handleUpload} disabled={uploading || !selectedFile}>
+              <Button onClick={handleUpload} disabled={uploading || !selectedFile} className="w-full sm:w-auto">
                 {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
               </Button>
             </div>
@@ -125,7 +125,7 @@ export const AdminGalleryTab = () => {
         {isLoading ? (
           <Loader2 className="w-8 h-8 animate-spin mx-auto" />
         ) : gallery && gallery.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {gallery.map((image) => (
               <motion.div key={image.id} className="relative group aspect-square">
                 <img
@@ -136,7 +136,7 @@ export const AdminGalleryTab = () => {
                 <Button
                   size="icon"
                   variant="destructive"
-                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100"
+                  className="absolute top-2 right-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                   onClick={() => handleDelete(image)}
                 >
                   <Trash2 className="w-4 h-4" />

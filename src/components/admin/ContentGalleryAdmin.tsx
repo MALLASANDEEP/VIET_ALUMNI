@@ -31,7 +31,7 @@ const ContentGalleryAdmin = () => {
   }, [data]);
 
   if (isLoading || !form) {
-    return <div className="p-10">Loading content...</div>;
+    return <div className="p-4 sm:p-6">Loading content...</div>;
   }
 
   const handleChange = (
@@ -120,8 +120,8 @@ const ContentGalleryAdmin = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto py-10 space-y-8">
-      <h1 className="text-3xl font-bold">Content Gallery – Admin</h1>
+    <div className="max-w-5xl mx-auto px-1 sm:px-0 py-6 sm:py-10 space-y-6 sm:space-y-8">
+      <h1 className="text-2xl sm:text-3xl font-bold">Content Gallery - Admin</h1>
 
       {/* TEXT CONTENT */}
       <div className="grid gap-4">
@@ -133,7 +133,7 @@ const ContentGalleryAdmin = () => {
           onChange={handleChange}
         />
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             name="button_text"
             value={form.button_text}
@@ -153,7 +153,7 @@ const ContentGalleryAdmin = () => {
           <ImageIcon size={20} /> Images (max {MAX_IMAGES})
         </h2>
 
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {Array.from({ length: MAX_IMAGES }).map((_, index) => (
             <div key={index} className="space-y-2">
               <label className="flex items-center gap-2 cursor-pointer text-sm">
@@ -200,7 +200,7 @@ const ContentGalleryAdmin = () => {
       <Button
         onClick={handleSave}
         disabled={updateContent.isPending}
-        className="flex gap-2"
+        className="flex gap-2 w-full sm:w-auto"
       >
         <Save size={18} />
         Save Changes

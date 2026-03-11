@@ -6,7 +6,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 
-const Index = lazy(() => import("./pages/Index"));
+// Landing page is tiny (3.5 kB) and always needed — load it eagerly
+import Index from "./pages/Index";
+
 const Admin = lazy(() => import("./pages/Admin"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -20,7 +22,8 @@ const AboutUs = lazy(() => import("./pages/Aboutus"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 60_000,
+      staleTime: 2 * 60_000,   // 2 min — serve cached data on revisit
+      gcTime: 10 * 60_000,     // 10 min — keep data in memory between navigations
       refetchOnWindowFocus: false,
       retry: 1,
     },

@@ -5,6 +5,7 @@ import {
   Image,
   LogOut,
   GraduationCap,
+  LayoutDashboard,
   Loader2,
   UserCheck,
   Trash2,
@@ -17,18 +18,13 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
 import { useAuth } from "@/hooks/useAuth";
-import { useAlumni } from "@/hooks/useAlumni";
-import { useGallery } from "@/hooks/useGallery";
-import { usePendingRegistrations } from "@/hooks/useProfile";
 import { useHero } from "@/hooks/useHero";
 
 import { AdminAlumniTab } from "@/components/admin/AdminAlumniTab";
 import { AdminGalleryTab } from "@/components/admin/AdminGalleryTab";
 import { AdminUsersTab } from "@/components/admin/AdminUsersTab";
 import { AdminLogin } from "@/components/admin/AdminLogin";
-import { AdminAlumnihero } from "@/components/admin/AluminiHero";
 import GalleryHeroadmin from "@/components/admin/GalleryHeroAdmin";
-import { T } from "vitest/dist/chunks/reporters.d.BFLkQcL6.js";
 import AdminAlumniHeroEditor from "@/components/admin/AdminAlumniHeroEditor";
 import ContentGalleryAdmin from "@/components/admin/ContentGalleryAdmin";
 import AdminEvents from "@/components/admin/AdminEvents";
@@ -75,20 +71,27 @@ const Admin = () => {
     <div className="min-h-screen bg-background">
       {/* NAVBAR */}
       <header className="bg-none sticky top-0 z-50">
-        <div className="container mx-auto px-6 h-16 flex justify-between items-center">
-          <div className="flex items-center gap-3">
+        <div className="container mx-auto px-4 sm:px-6 py-3 sm:h-16 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 bg-gold rounded-lg flex items-center justify-center">
               <Shield className="w-6 h-6 text-navy-dark" />
             </div>
-            <div>
-              <h1 className="font-semibold text-navy-dark">Admin Panel</h1>
-              <p className="text-xs text-navy-dark/70">{user.email}</p>
+            <div className="min-w-0">
+              <h1 className="font-semibold text-navy-dark truncate">Admin Panel</h1>
+              <p className="text-xs text-navy-dark/70 truncate">{user.email}</p>
             </div>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+            <Link to="/dashboard">
+              <Button variant="ghost" className="bg-black text-white hover:bg-black/90 w-full sm:w-auto">
+                <LayoutDashboard className="w-4 h-4 mr-2" />
+                Dashboard Preview
+              </Button>
+            </Link>
+
             <Link to="/">
-              <Button variant="ghost" className="bg-black text-white hover:bg-black/90">
+              <Button variant="ghost" className="bg-black text-white hover:bg-black/90 w-full sm:w-auto">
                 <GraduationCap className="w-4 h-4 mr-2" />
                 View Site
               </Button>
@@ -97,7 +100,7 @@ const Admin = () => {
             <Button
               variant="ghost"
               onClick={signOut}
-              className="bg-black text-white hover:bg-black/90"
+              className="bg-black text-white hover:bg-black/90 w-full sm:w-auto"
             >
               <LogOut className="w-4 h-4 mr-2" />
               Logout
@@ -107,71 +110,78 @@ const Admin = () => {
       </header>
 
       {/* MAIN LAYOUT */}
-      <div className="container mx-auto px-6 py-8">
-        <Tabs defaultValue="users" className="flex gap-6">
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <Tabs defaultValue="users" className="flex flex-col lg:flex-row gap-4 lg:gap-6">
 
           {/* LEFT SIDEBAR – FIXED */}
          <TabsList
   className="
-    w-64
-    flex
-    flex-col
-    items-start
+    w-full
+    lg:w-64
+    h-auto
+    grid
+    grid-cols-2
+    sm:grid-cols-3
+    lg:flex
+    lg:flex-col
+    items-stretch
+    lg:items-start
     justify-start
     gap-1
     bg-transparent
     rounded-xl
     p-3
+    overflow-hidden
     sticky
-    top-24
-    h-fit
+    top-[72px]
+    lg:top-24
     self-start
   "
 >
-            <TabsTrigger value="users" className="w-full justify-start gap-2">
+            <TabsTrigger value="users" className="w-full justify-start gap-2 whitespace-nowrap text-xs sm:text-sm">
               <Users className="w-4 h-4" />
               Users
             </TabsTrigger>
 
-            <TabsTrigger value="alumni" className="w-full justify-start gap-2">
+            <TabsTrigger value="alumni" className="w-full justify-start gap-2 whitespace-nowrap text-xs sm:text-sm">
               <UserCheck className="w-4 h-4" />
               Alumni
             </TabsTrigger>
 
-            <TabsTrigger value="gallery" className="w-full justify-start gap-2">
+            <TabsTrigger value="gallery" className="w-full justify-start gap-2 whitespace-nowrap text-xs sm:text-sm">
               <Image className="w-4 h-4" />
               Gallery
             </TabsTrigger>
 
-            <TabsTrigger value="settings" className="w-full justify-start gap-2">
+            <TabsTrigger value="settings" className="w-full justify-start gap-2 whitespace-nowrap text-xs sm:text-sm">
               <Shield className="w-4 h-4" />
              Hero Settings
             </TabsTrigger>
           
-            <TabsTrigger value="galleryhero" className="w-full justify-start gap-2">
+            <TabsTrigger value="galleryhero" className="w-full justify-start gap-2 whitespace-nowrap text-xs sm:text-sm">
               <Shield className="w-4 h-4" />
              Gallery Hero Settings
             </TabsTrigger>
-              <TabsTrigger value="adminalumnihero" className="w-full justify-start gap-2"> 
+              <TabsTrigger value="adminalumnihero" className="w-full justify-start gap-2 whitespace-nowrap text-xs sm:text-sm"> 
               <Shield className="w-4 h-4" />
               Alumni Hero Settings
             </TabsTrigger>
-            <TabsTrigger value="contentgallery" className="w-full justify-start gap-2">
+            <TabsTrigger value="contentgallery" className="w-full justify-start gap-2 whitespace-nowrap text-xs sm:text-sm">
               <Shield className="w-4 h-4" />
               Content Gallery
             </TabsTrigger>
-            <TabsTrigger value="events" className="w-full justify-start gap-2">
+            <TabsTrigger value="events" className="w-full justify-start gap-2 whitespace-nowrap text-xs sm:text-sm">
               <Shield className="w-4 h-4" />
               Events
             </TabsTrigger>
-            <TabsTrigger value="manageadmins" className="w-full justify-start gap-2">
+            <TabsTrigger value="manageadmins" className="w-full justify-start gap-2 whitespace-nowrap text-xs sm:text-sm">
               <Shield className="w-4 h-4" />
               Manage Admins
             </TabsTrigger>
           </TabsList>
 
           {/* RIGHT CONTENT */}
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <TabsContent value="users" className="mt-0">
               <AdminUsersTab />
             </TabsContent>
@@ -182,9 +192,6 @@ const Admin = () => {
 
             <TabsContent value="gallery" className="mt-0">
               <AdminGalleryTab />
-            </TabsContent>
-            <TabsContent value="alumnihero" className="mt-0">
-              <AdminAlumnihero />
             </TabsContent>
             <TabsContent value="galleryhero" className="mt-0">
               <GalleryHeroadmin />
@@ -213,7 +220,7 @@ const Admin = () => {
                     <p>Loading hero...</p>
                   ) : (
                     <>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Input
                           value={heroDraft.badge_text || ""}
                           onChange={(e) =>
@@ -266,7 +273,7 @@ const Admin = () => {
                       />
 
                       {heroDraft.bg_images?.length > 0 && (
-                        <div className="grid grid-cols-3 gap-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                           {heroDraft.bg_images.map((img: string, i: number) => (
                             <div key={i} className="relative">
                               <img

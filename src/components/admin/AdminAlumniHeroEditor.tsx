@@ -64,8 +64,8 @@ const AdminAlumniHeroEditor = () => {
   }
 
   return (
-    <div className="max-w-xl mx-auto p-6 bg-white rounded-xl shadow-md space-y-4">
-      <h2 className="text-2xl font-bold">Edit Alumni Hero Section</h2>
+    <div className="max-w-xl mx-auto p-4 sm:p-6 bg-white rounded-xl shadow-md space-y-4">
+      <h2 className="text-xl sm:text-2xl font-bold">Edit Alumni Hero Section</h2>
 
       {/* Title */}
       <div className="flex flex-col space-y-2">
@@ -120,7 +120,7 @@ const AdminAlumniHeroEditor = () => {
         </select>
       </div>
 
-      <Button onClick={handleSave} disabled={loading}>
+      <Button onClick={handleSave} disabled={loading} className="w-full sm:w-auto">
         {loading ? "Saving..." : "Save Changes"}
       </Button>
     </div>

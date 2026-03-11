@@ -7,6 +7,7 @@ import {
   Check,
   Filter,
   X,
+  BadgeCheck,
 } from "lucide-react";
 import { Input } from "../components/ui/input";
 import { useAlumni } from "@/hooks/useAlumni";
@@ -219,7 +220,7 @@ const DepartmentFilter = () => {
                   className="group bg-white rounded-3xl p-5 border border-slate-200/80 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 transition-all cursor-pointer relative overflow-hidden"
                   onClick={() => setSelectedAlumni(alumni)}
                 >
-                  <div className="flex items-center gap-5">
+                  <div className="flex items-center gap-4">
                     <div className="relative flex-shrink-0">
                       <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-slate-100 group-hover:border-indigo-100 transition-colors">
                         {alumni.photo_url ? (
@@ -230,19 +231,28 @@ const DepartmentFilter = () => {
                           </div>
                         )}
                       </div>
-                      <div className="absolute -bottom-1 -right-1 bg-green-500 w-4 h-4 rounded-full border-2 border-white" title="Verified Alumni" />
+                      {alumni.is_verified && (
+                        <div className="absolute -bottom-1 -right-1 bg-blue-500 w-5 h-5 rounded-full border-2 border-white flex items-center justify-center">
+                          <BadgeCheck className="w-3 h-3 text-white" />
+                        </div>
+                      )}
                     </div>
-
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-lg text-slate-900 truncate group-hover:text-indigo-600 transition-colors">
-                        {alumni.name}
-                      </h3>
-                      
-                      
+                    <div className="flex flex-col min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <h3 className="font-bold text-slate-800 text-base truncate">{alumni.name}</h3>
+                        {alumni.is_verified && <BadgeCheck className="w-4 h-4 text-blue-500 shrink-0" />}
+                      </div>
                       <p className="text-slate-500 text-sm font-medium truncate flex items-center gap-1">
                         <span className="w-1 h-1 rounded-full bg-slate-300" />
                         {alumni.company || "Elite Network"}
                       </p>
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-medium">{alumni.batch}</span>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 font-semibold truncate max-w-[120px]">{alumni.department}</span>
+                        {alumni.lpa && Number(alumni.lpa) > 0 && (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 font-bold">{alumni.lpa} LPA</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </motion.div>

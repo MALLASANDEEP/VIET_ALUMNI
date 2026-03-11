@@ -356,6 +356,8 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          is_banned: boolean
+          is_verified: boolean
           linkedin_url: string | null
           phone: string | null
           photo_url: string | null
@@ -374,6 +376,8 @@ export type Database = {
           email: string
           full_name: string
           id?: string
+          is_banned?: boolean
+          is_verified?: boolean
           linkedin_url?: string | null
           phone?: string | null
           photo_url?: string | null
@@ -394,8 +398,8 @@ export type Database = {
           id?: string
           linkedin_url?: string | null
           phone?: string | null
-          photo_url?: string | null
-          requested_role?: string
+          photo_url?: string | null          is_banned?: boolean
+          is_verified?: boolean          requested_role?: string
           status?: string
           updated_at?: string
           user_id?: string

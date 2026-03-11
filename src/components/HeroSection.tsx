@@ -20,16 +20,28 @@ const HeroSection = () => {
   // ✅ loading states (unchanged)
   if (loading) {
     return (
-      <div className="h-[80vh] flex items-center justify-center">
-        Loading hero...
+      <div className="relative h-[95vh] bg-slate-900 overflow-hidden animate-pulse">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-950" />
+        <div className="absolute inset-0 bg-black/30" />
+        <div className="relative z-20 max-w-3xl px-9 md:px-19 text-left pt-32 md:pt-40">
+          <div className="h-3 w-20 bg-slate-700 rounded mb-6" />
+          <div className="h-14 md:h-20 w-3/4 bg-slate-700 rounded-lg mb-3" />
+          <div className="h-14 md:h-20 w-1/2 bg-slate-700 rounded-lg mb-6" />
+          <div className="h-4 w-72 bg-slate-700 rounded mb-3" />
+          <div className="h-4 w-52 bg-slate-700 rounded mb-10" />
+          <div className="flex gap-4">
+            <div className="h-12 w-32 bg-slate-700 rounded-lg" />
+            <div className="h-12 w-32 bg-slate-700 rounded-lg" />
+          </div>
+        </div>
       </div>
     );
   }
 
   if (!hero) {
     return (
-      <div className="h-[80vh] flex items-center justify-center">
-        No hero data
+      <div className="h-[95vh] bg-slate-900 flex items-center justify-center">
+        <p className="text-slate-400">Unable to load content</p>
       </div>
     );
   }

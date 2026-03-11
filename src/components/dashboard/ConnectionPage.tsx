@@ -1,4 +1,4 @@
-import { UserPlus, Loader2, Building2, GraduationCap } from "lucide-react";
+import { UserPlus, Loader2, Building2, GraduationCap, BadgeCheck } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -65,7 +65,12 @@ const ConnectionPage = ({ profile }: ConnectionPageProps) => {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold truncate">{alumniProfile.full_name}</p>
+                      <div className="flex items-center gap-1.5">
+                        <p className="font-semibold truncate">{alumniProfile.full_name}</p>
+                        {(alumniProfile as any).is_verified && (
+                          <BadgeCheck className="w-4 h-4 text-blue-500 shrink-0" aria-label="Verified Alumni" />
+                        )}
+                      </div>
                       <p className="text-sm text-muted-foreground truncate">
                         {alumniProfile.current_position || "Alumni"}
                         {alumniProfile.company ? ` @ ${alumniProfile.company}` : ""}

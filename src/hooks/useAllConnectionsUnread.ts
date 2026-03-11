@@ -8,11 +8,25 @@ interface UnreadStatus {
 
 const UNREAD_KEY_PREFIX = "chat_last_viewed_";
 
+const hasSameUnreadCounts = (a: UnreadStatus, b: UnreadStatus) => {
+  const aKeys = Object.keys(a);
+  const bKeys = Object.keys(b);
+
+  if (aKeys.length !== bKeys.length) return false;
+
+  for (const key of aKeys) {
+    if (a[key] !== b[key]) return false;
+  }
+
+  return true;
+};
+
 export const useAllConnectionsUnread = (
   connections: any[] = [],
   profileId: string | undefined
 ) => {
   const [unreadCounts, setUnreadCounts] = useState<UnreadStatus>({});
+  const connectionIdsKey = connections.map((connection) => connection.id).join("|");
 
   // Query messages for all connections in parallel
   const messageQueries = useQueries({
@@ -35,9 +49,16 @@ export const useAllConnectionsUnread = (
     })),
   });
 
+  const queryDataVersion = messageQueries
+    .map((query) => `${query.dataUpdatedAt}:${query.status}`)
+    .join("|");
+
   // Calculate unread counts whenever messages update
   useEffect(() => {
-    if (!profileId) return;
+    if (!profileId) {
+      setUnreadCounts((prev) => (Object.keys(prev).length > 0 ? {} : prev));
+      return;
+    }
 
     const newCounts: UnreadStatus = {};
 
@@ -57,8 +78,8 @@ export const useAllConnectionsUnread = (
       }
     });
 
-    setUnreadCounts(newCounts);
-  }, [messageQueries, profileId]);
+    setUnreadCounts((prev) => (hasSameUnreadCounts(prev, newCounts) ? prev : newCounts));
+  }, [profileId, connectionIdsKey, queryDataVersion]);
 
   // Mark messages as read when viewing a connection
   const markAsRead = useCallback((connId: string) => {

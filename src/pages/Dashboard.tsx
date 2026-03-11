@@ -4,20 +4,17 @@ import { motion } from "framer-motion";
 import { 
   Loader2, 
   GraduationCap, 
-  Briefcase, 
   Users, 
   Clock, 
   CheckCircle,
   XCircle,
   Home,
-  Bell
+  Ban
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
-import { useProfile } from "@/hooks/useProfile";
+import { useAllProfiles, useProfile } from "@/hooks/useProfile";
 import { StudentDashboard } from "@/components/dashboard/StudentDashboard";
 import { AlumniDashboard } from "@/components/dashboard/AlumniDashboard";
 import DashboardNotificationBell from "@/components/dashboard/DashboardNotificationBell";
@@ -26,8 +23,13 @@ import ProfileMenu from "@/components/ProfileMenu";
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading, signOut, isAdmin } = useAuth();
-  const { data: profile, isLoading: profileLoading } = useProfile();
-  const [unreadChatCount, setUnreadChatCount] = useState(0);
+  const { data: profile, isLoading: profileLoading, error: profileError } = useProfile();
+  const {
+    data: allProfiles = [],
+    isLoading: allProfilesLoading,
+    error: allProfilesError,
+  } = useAllProfiles();
+  const [previewRole, setPreviewRole] = useState<"student" | "alumni">("student");
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -35,19 +37,12 @@ const Dashboard = () => {
     }
   }, [authLoading, user, navigate]);
 
-  // Redirect admin to admin panel
-  useEffect(() => {
-    if (isAdmin) {
-      navigate("/admin");
-    }
-  }, [isAdmin, navigate]);
-
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
   };
 
-  if (authLoading || profileLoading) {
+  if (authLoading || (!isAdmin && profileLoading) || (isAdmin && allProfilesLoading)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-gold" />
@@ -56,6 +51,135 @@ const Dashboard = () => {
   }
 
   if (!user) return null;
+
+  if ((!isAdmin && profileError) || (isAdmin && allProfilesError)) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="max-w-lg w-full">
+          <CardContent className="pt-6 space-y-3">
+            <h2 className="text-lg font-semibold">Unable to load dashboard data</h2>
+            <p className="text-sm text-muted-foreground">
+              Please refresh the page. If it still fails, sign out and sign in again.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" onClick={() => window.location.reload()}>
+                Refresh
+              </Button>
+              <Button variant="outline" onClick={handleSignOut}>
+                Sign Out
+              </Button>
+              <Link to="/">
+                <Button>Go Home</Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (isAdmin) {
+    const previewProfile = allProfiles.find(
+      (p) => p.status === "approved" && p.requested_role === previewRole
+    );
+
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="bg-gradient-to-r from-navy-dark via-navy-dark to-primary sticky top-0 z-50 border-b border-border/30 shadow-lg">
+          <div className="container mx-auto px-4 sm:px-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-3 sm:h-20">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gold flex items-center justify-center shadow-lg">
+                  <GraduationCap className="w-6 h-6 text-navy-dark" />
+                </div>
+                <div>
+                  <h1 className="font-serif font-bold text-base sm:text-lg text-primary-foreground">
+                    Admin Dashboard Preview
+                  </h1>
+                  <p className="text-xs text-primary-foreground/70">Switch between Student and Alumni dashboard views</p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <Link to="/admin">
+                  <Button variant="outline" className="gap-2">
+                    Admin Panel
+                  </Button>
+                </Link>
+                <Link to="/">
+                  <Button variant="ghost" className="text-primary-foreground hover:bg-primary/20 gap-2 h-10">
+                    <Home className="w-4 h-4" />
+                    <span>Home</span>
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={previewRole === "student" ? "default" : "outline"}
+              onClick={() => setPreviewRole("student")}
+            >
+              Student View
+            </Button>
+            <Button
+              variant={previewRole === "alumni" ? "default" : "outline"}
+              onClick={() => setPreviewRole("alumni")}
+            >
+              Alumni View
+            </Button>
+          </div>
+
+          {!previewProfile ? (
+            <Card>
+              <CardContent className="pt-6">
+                <p className="text-muted-foreground">
+                  No approved {previewRole} profile found yet. Approve at least one {previewRole} account to preview this dashboard.
+                </p>
+              </CardContent>
+            </Card>
+          ) : previewRole === "student" ? (
+            <StudentDashboard profile={previewProfile} showNetworkTabs={false} />
+          ) : (
+            <AlumniDashboard profile={previewProfile} />
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Show banned message
+  if (profile?.is_banned) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+          <Card className="max-w-md text-center">
+            <CardContent className="pt-6">
+              <Ban className="w-16 h-16 text-destructive mx-auto mb-4" />
+              <h2 className="text-xl font-semibold mb-2">Account Suspended</h2>
+              <p className="text-muted-foreground mb-4">
+                Your account has been suspended. Please contact the administrator if you believe this is a mistake.
+              </p>
+              <div className="flex gap-2 justify-center">
+                <Link to="/">
+                  <Button variant="outline" className="gap-2">
+                    <Home className="w-4 h-4" />
+                    Go Home
+                  </Button>
+                </Link>
+                <Button variant="outline" onClick={handleSignOut}>
+                  Sign Out
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    );
+  }
 
   // Show pending approval message
   if (profile?.status === "pending") {

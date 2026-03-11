@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Loader2, X, Linkedin, Building, ArrowRight 
+  Loader2, X, Linkedin, Building, ArrowRight, BadgeCheck
 } from "lucide-react";
 import { useAlumni } from "@/hooks/useAlumni";
 import { Link } from "react-router-dom"; 
@@ -18,6 +18,7 @@ interface Alumni {
   message?: string;
   linkedin?: string;
   lpa?: string | number;
+  is_verified?: boolean;
 }
 
 interface AlumniCardProps {
@@ -67,7 +68,12 @@ const AlumniCard: React.FC<AlumniCardProps> = ({ alumni, onClick }) => (
         <span className="inline-block bg-indigo-600/90 backdrop-blur-sm text-white text-[8px] font-black uppercase tracking-[0.2em] mb-2 px-2 py-0.5 rounded-md shadow-lg">
           {formatBranch(alumni.department)}
         </span>
-        <h3 className="text-white font-bold text-xl leading-tight">{alumni.name}</h3>
+        <div className="flex items-center gap-1.5">
+          <h3 className="text-white font-bold text-xl leading-tight">{alumni.name}</h3>
+          {alumni.is_verified && (
+            <BadgeCheck className="w-5 h-5 text-blue-400 shrink-0" />
+          )}
+        </div>
       </div>
       <div className="absolute top-4 right-4 z-20">
         <span className="bg-slate-900/60 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-xl">

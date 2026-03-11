@@ -19,6 +19,7 @@ export interface Alumni {
   updated_at?: string;
   status?: string;
   roll_no?: string;
+  is_verified?: boolean;
 }
 
 export interface AlumniInsert {
@@ -69,7 +70,8 @@ export const useAlumni = () => {
         created_at: item.created_at,
         updated_at: item.updated_at,
         status: item.status ?? null,
-        roll_no: item.roll_no ?? null
+        roll_no: item.roll_no ?? null,
+        is_verified: item.is_verified ?? false,
       }));
 
       return {

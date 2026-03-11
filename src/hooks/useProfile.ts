@@ -21,6 +21,8 @@ export interface Profile {
   updated_at: string;
   roll_no: string | null;
   lpa: number | null;
+  is_banned: boolean;
+  is_verified: boolean;
 }
 
 export const useProfile = () => {
@@ -96,6 +98,7 @@ export const useUpdateProfile = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       queryClient.invalidateQueries({ queryKey: ["pending-registrations"] });
+      queryClient.invalidateQueries({ queryKey: ["all-profiles"] });
     },
   });
 };

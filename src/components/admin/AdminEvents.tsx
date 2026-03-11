@@ -72,7 +72,7 @@ const AdminEvents = () => {
   if (isLoading) return <div className="p-8 text-center font-medium">Loading Events...</div>;
 
   return (
-    <div className="p-8 space-y-10 max-w-4xl mx-auto">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-8 sm:space-y-10 max-w-4xl mx-auto">
       {/* SECTION HEADER EDIT */}
       <div className="bg-white p-6 rounded shadow-md border border-gray-100">
         <h2 className="font-bold mb-4 text-xl text-gray-800">Edit Section Header</h2>
@@ -130,7 +130,7 @@ const AdminEvents = () => {
       }
     />
 
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <input
         type="date"
         className="border p-2 rounded"
@@ -162,12 +162,12 @@ const AdminEvents = () => {
       {/* EVENT LIST */}
       <div className="space-y-4">
         {events.map((e) => (
-          <div key={e.id} className="bg-white border p-4 rounded flex justify-between">
-            <div>
+          <div key={e.id} className="bg-white border p-4 rounded flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="min-w-0">
               <p className="font-bold">{e.title}</p>
               <p className="text-sm text-gray-500">{e.event_date} @ {e.venue}</p>
             </div>
-            <div className="space-x-4">
+            <div className="flex flex-wrap gap-3 sm:justify-end">
               <button className="text-blue-600" onClick={() => { setEventData(e as any); setIsEditing(true); }}>Edit</button>
               <button className="text-red-600" onClick={() => deleteEvent.mutate(e.id)}>Delete</button>
             </div>
