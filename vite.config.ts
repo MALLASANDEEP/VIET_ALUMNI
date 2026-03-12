@@ -21,26 +21,11 @@ export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          if (!id.includes("node_modules")) return;
-
-          if (id.includes("react") || id.includes("react-dom") || id.includes("react-router-dom")) {
-            return "react-vendor";
-          }
-
-          if (id.includes("@supabase") || id.includes("@tanstack")) {
-            return "data-vendor";
-          }
-
-          if (id.includes("framer-motion") || id.includes("recharts")) {
-            return "ui-animations";
-          }
-
-          if (id.includes("@radix-ui")) {
-            return "radix-vendor";
-          }
-
-          return "vendor";
+        manualChunks: {
+          // Core framework - load first, no dependencies
+          "react-core": ["react", "react-dom", "react-router-dom"],
+          // Animations - depends only on react-core
+          "animations": ["framer-motion", "recharts"],
         },
       },
     },
