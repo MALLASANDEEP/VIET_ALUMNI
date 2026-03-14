@@ -2,6 +2,18 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
+const PROFILE_TIMEOUT_MS = 9000;
+
+const withTimeout = <T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> => {
+  return new Promise((resolve, reject) => {
+    const timer = window.setTimeout(() => reject(new Error(message)), timeoutMs);
+    promise
+      .then((value) => resolve(value))
+      .catch((error) => reject(error))
+      .finally(() => window.clearTimeout(timer));
+  });
+};
+
 export interface Profile {
   id: string;
   user_id: string;
@@ -32,16 +44,22 @@ export const useProfile = () => {
     queryKey: ["profile", user?.id],
     queryFn: async () => {
       if (!user) return null;
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
+      const { data, error } = await withTimeout(
+        supabase
+          .from("profiles")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle(),
+        PROFILE_TIMEOUT_MS,
+        "Profile request timed out"
+      );
       
       if (error) throw error;
       return data as Profile | null;
     },
     enabled: !!user,
+    retry: 1,
+    refetchOnWindowFocus: false,
   });
 };
 

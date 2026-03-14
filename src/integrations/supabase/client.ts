@@ -5,13 +5,24 @@ import type { Database } from '../../test/types';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
+const hasSupabaseConfig = Boolean(SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY);
+if (!hasSupabaseConfig) {
+  console.error(
+    "[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_PUBLISHABLE_KEY. The app will run with limited data features until env vars are configured."
+  );
+}
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+export const supabase = createClient<Database>(
+  SUPABASE_URL || "https://example.supabase.co",
+  SUPABASE_PUBLISHABLE_KEY || "public-anon-key-not-configured",
+  {
   auth: {
     storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
-  }
-});
+  },
+}
+);

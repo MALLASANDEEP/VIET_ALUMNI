@@ -3,6 +3,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
 
 export type AppRole = "admin" | "student" | "alumni" | "user";
+const AUTH_TIMEOUT_MS = 8000;
+
+const withTimeout = <T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> => {
+  return new Promise((resolve, reject) => {
+    const timer = window.setTimeout(() => reject(new Error(message)), timeoutMs);
+    promise
+      .then((value) => resolve(value))
+      .catch((error) => reject(error))
+      .finally(() => window.clearTimeout(timer));
+  });
+};
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -13,10 +24,14 @@ export const useAuth = () => {
 
   // 🔥 Centralized Role Fetcher
   const fetchUserRole = useCallback(async (userId: string) => {
-    const { data, error } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId);
+    const { data, error } = await withTimeout(
+      supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId),
+      AUTH_TIMEOUT_MS,
+      "Role fetch timeout"
+    );
 
     if (error) {
       console.error("Role fetch error:", error.message);
@@ -50,32 +65,47 @@ export const useAuth = () => {
       setUser(session?.user ?? null);
 
       if (session?.user) {
-        await fetchUserRole(session.user.id);
+        try {
+          await fetchUserRole(session.user.id);
+        } finally {
+          setLoading(false);
+        }
       } else {
         setIsAdmin(false);
         setUserRole(null);
+        setLoading(false);
       }
-
-      setLoading(false);
     });
 
     // Initial session load
     const initialize = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      try {
+        const {
+          data: { session },
+        } = await withTimeout(
+          supabase.auth.getSession(),
+          AUTH_TIMEOUT_MS,
+          "Session fetch timeout"
+        );
 
-      setSession(session);
-      setUser(session?.user ?? null);
+        setSession(session);
+        setUser(session?.user ?? null);
 
-      if (session?.user) {
-        await fetchUserRole(session.user.id);
+        if (session?.user) {
+          await fetchUserRole(session.user.id);
+        }
+      } catch (error) {
+        console.warn("Auth initialization fallback triggered:", error);
+        setSession(null);
+        setUser(null);
+        setIsAdmin(false);
+        setUserRole(null);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
 
-    initialize();
+    void initialize();
 
     return () => subscription.unsubscribe();
   }, [fetchUserRole]);

@@ -2,6 +2,18 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
+const ALUMNI_TIMEOUT_MS = 9000;
+
+const withTimeout = <T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> => {
+  return new Promise((resolve, reject) => {
+    const timer = window.setTimeout(() => reject(new Error(message)), timeoutMs);
+    promise
+      .then((value) => resolve(value))
+      .catch((error) => reject(error))
+      .finally(() => window.clearTimeout(timer));
+  });
+};
+
 // ---------------- INTERFACES ----------------
 export interface Alumni {
   id: string;
@@ -41,17 +53,21 @@ export const useAlumni = () => {
   return useQuery({
     queryKey: ["alumni", "settings"],
     queryFn: async () => {
-      const [alumniRes, settingsRes] = await Promise.all([
-        supabase
-          .from("alumni")
-          .select("*")
-          .order("created_at", { ascending: false }),
-        supabase
-          .from("site_settings" as any)
-          .select("value")
-          .eq("id", "alumni_section_title")
-          .maybeSingle()
-      ]);
+      const [alumniRes, settingsRes] = await withTimeout(
+        Promise.all([
+          supabase
+            .from("alumni")
+            .select("*")
+            .order("created_at", { ascending: false }),
+          supabase
+            .from("site_settings" as any)
+            .select("value")
+            .eq("id", "alumni_section_title")
+            .maybeSingle()
+        ]),
+        ALUMNI_TIMEOUT_MS,
+        "Alumni request timed out"
+      );
 
       if (alumniRes.error) throw alumniRes.error;
 
@@ -78,7 +94,9 @@ export const useAlumni = () => {
         alumni: formattedAlumni,
         sectionTitle: (settingsRes?.data as any)?.value || "Distinguished Alumni"
       };
-    }
+    },
+    retry: 1,
+    refetchOnWindowFocus: false,
   });
 };
 
