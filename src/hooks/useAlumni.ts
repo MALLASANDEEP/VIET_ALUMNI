@@ -53,7 +53,7 @@ export const useAlumni = () => {
   return useQuery({
     queryKey: ["alumni", "settings"],
     queryFn: async () => {
-      const [alumniRes, settingsRes] = await withTimeout(
+      const [alumniRes, settingsRes, adminRolesRes] = await withTimeout(
         Promise.all([
           supabase
             .from("alumni")
@@ -63,13 +63,36 @@ export const useAlumni = () => {
             .from("site_settings" as any)
             .select("value")
             .eq("id", "alumni_section_title")
-            .maybeSingle()
+            .maybeSingle(),
+          supabase
+            .from("user_roles")
+            .select("user_id")
+            .eq("role", "admin"),
         ]),
         ALUMNI_TIMEOUT_MS,
         "Alumni request timed out"
       );
 
       if (alumniRes.error) throw alumniRes.error;
+      if (adminRolesRes.error) throw adminRolesRes.error;
+
+      const adminUserIds = (adminRolesRes.data || []).map((row) => row.user_id);
+      let adminEmails = new Set<string>();
+
+      if (adminUserIds.length > 0) {
+        const { data: adminProfiles, error: adminProfilesError } = await supabase
+          .from("profiles")
+          .select("email")
+          .in("user_id", adminUserIds);
+
+        if (adminProfilesError) throw adminProfilesError;
+
+        adminEmails = new Set(
+          (adminProfiles || [])
+            .map((profile) => profile.email)
+            .filter((email): email is string => Boolean(email))
+        );
+      }
 
       const formattedAlumni: Alumni[] = (alumniRes.data as any[]).map(item => ({
         id: item.id,
@@ -88,7 +111,7 @@ export const useAlumni = () => {
         status: item.status ?? null,
         roll_no: item.roll_no ?? null,
         is_verified: item.is_verified ?? false,
-      }));
+      })).filter((item) => !item.email || !adminEmails.has(item.email));
 
       return {
         alumni: formattedAlumni,

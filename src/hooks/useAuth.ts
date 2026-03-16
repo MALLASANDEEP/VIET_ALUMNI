@@ -3,12 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
 
 export type AppRole = "admin" | "student" | "alumni" | "user";
-const AUTH_TIMEOUT_MS = 8000;
+const AUTH_TIMEOUT_MS = 15000;
 
-const withTimeout = <T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> => {
+const withTimeout = <T>(promise: PromiseLike<T>, timeoutMs: number, message: string): Promise<T> => {
   return new Promise((resolve, reject) => {
     const timer = window.setTimeout(() => reject(new Error(message)), timeoutMs);
-    promise
+    Promise.resolve(promise)
       .then((value) => resolve(value))
       .catch((error) => reject(error))
       .finally(() => window.clearTimeout(timer));
@@ -24,36 +24,42 @@ export const useAuth = () => {
 
   // 🔥 Centralized Role Fetcher
   const fetchUserRole = useCallback(async (userId: string) => {
-    const { data, error } = await withTimeout(
-      supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId),
-      AUTH_TIMEOUT_MS,
-      "Role fetch timeout"
-    );
+    try {
+      const { data, error } = await withTimeout(
+        supabase
+          .from("user_roles" )
+          .select("role")
+          .eq("user_id", userId),
+        AUTH_TIMEOUT_MS,
+        "Role fetch timeout"
+      );
 
-    if (error) {
-      console.error("Role fetch error:", error.message);
+      if (error) {
+        console.error("Role fetch error:", error.message);
+        setIsAdmin(false);
+        setUserRole(null);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        setIsAdmin(false);
+        setUserRole(null);
+        return;
+      }
+
+      const roles = data.map((r) => r.role);
+
+      setIsAdmin(roles.includes("admin"));
+
+      if (roles.includes("admin")) setUserRole("admin");
+      else if (roles.includes("alumni")) setUserRole("alumni");
+      else if (roles.includes("student")) setUserRole("student");
+      else setUserRole("user");
+    } catch (error) {
+      console.warn("Role fetch fallback triggered:", error);
       setIsAdmin(false);
       setUserRole(null);
-      return;
     }
-
-    if (!data || data.length === 0) {
-      setIsAdmin(false);
-      setUserRole(null);
-      return;
-    }
-
-    const roles = data.map((r) => r.role);
-
-    setIsAdmin(roles.includes("admin"));
-
-    if (roles.includes("admin")) setUserRole("admin");
-    else if (roles.includes("alumni")) setUserRole("alumni");
-    else if (roles.includes("student")) setUserRole("student");
-    else setUserRole("user");
   }, []);
 
   useEffect(() => {

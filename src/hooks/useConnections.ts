@@ -4,6 +4,7 @@ import { toast } from "@/hooks/use-toast";
 
 export interface DirectoryAlumni {
   id: string;
+  user_id: string;
   full_name: string;
   department: string | null;
   company: string | null;
@@ -58,7 +59,7 @@ export const useApprovedAlumniDirectory = (currentProfileId?: string) => {
     queryFn: async () => {
       let query = supabase
         .from("profiles")
-        .select("id, full_name, department, company, current_position, photo_url, requested_role")
+        .select("id, user_id, full_name, department, company, current_position, photo_url, requested_role")
         .eq("status", "approved")
         .eq("requested_role", "alumni")
         .order("full_name", { ascending: true });
@@ -70,7 +71,18 @@ export const useApprovedAlumniDirectory = (currentProfileId?: string) => {
       const { data, error } = await query;
       if (error) throw error;
 
-      return (data || []) as DirectoryAlumni[];
+      const { data: adminRoles, error: adminRolesError } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "admin");
+
+      if (adminRolesError) throw adminRolesError;
+
+      const adminUserIds = new Set((adminRoles || []).map((row) => row.user_id));
+
+      return ((data || []) as DirectoryAlumni[]).filter(
+        (profile) => !adminUserIds.has(profile.user_id)
+      );
     },
     enabled: !!currentProfileId,
   });
