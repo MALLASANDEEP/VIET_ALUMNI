@@ -195,7 +195,7 @@ const Register = () => {
 
                 <div className="space-y-2">
                   <Label>Roll Number *</Label>
-                  <Input required placeholder="20XX1A05XX" value={formData.rollNo} onChange={(e) => setFormData({ ...formData, rollNo: e.target.value })}/>
+                  <Input required placeholder="ex:23NT1A05XX" value={formData.rollNo} onChange={(e) => setFormData({ ...formData, rollNo: e.target.value })}/>
                 </div>
               </div>
 
@@ -203,7 +203,7 @@ const Register = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Email *</Label>
-                  <Input type="email" required placeholder="you@example.com" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })}/>
+                  <Input type="email" required placeholder="you@gmail.com" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })}/>
                 </div>
 
                 <div className="space-y-2">
