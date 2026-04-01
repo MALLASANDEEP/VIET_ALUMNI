@@ -1,0 +1,138 @@
+import { useEffect, useState, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+const AUTH_TIMEOUT_MS = 15000;
+const withTimeout = (promise, timeoutMs, message) => {
+    return new Promise((resolve, reject) => {
+        const timer = window.setTimeout(() => reject(new Error(message)), timeoutMs);
+        Promise.resolve(promise)
+            .then((value) => resolve(value))
+            .catch((error) => reject(error))
+            .finally(() => window.clearTimeout(timer));
+    });
+};
+export const useAuth = () => {
+    const [user, setUser] = useState(null);
+    const [session, setSession] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [userRole, setUserRole] = useState(null);
+    // 🔥 Centralized Role Fetcher
+    const fetchUserRole = useCallback(async (userId) => {
+        try {
+            const { data, error } = await withTimeout(supabase
+                .from("user_roles")
+                .select("role")
+                .eq("user_id", userId), AUTH_TIMEOUT_MS, "Role fetch timeout");
+            if (error) {
+                console.error("Role fetch error:", error.message);
+                setIsAdmin(false);
+                setUserRole(null);
+                return;
+            }
+            if (!data || data.length === 0) {
+                setIsAdmin(false);
+                setUserRole(null);
+                return;
+            }
+            const roles = data.map((r) => r.role);
+            setIsAdmin(roles.includes("admin"));
+            if (roles.includes("admin"))
+                setUserRole("admin");
+            else if (roles.includes("alumni"))
+                setUserRole("alumni");
+            else if (roles.includes("student"))
+                setUserRole("student");
+            else
+                setUserRole("user");
+        }
+        catch (error) {
+            console.warn("Role fetch fallback triggered:", error);
+            setIsAdmin(false);
+            setUserRole(null);
+        }
+    }, []);
+    useEffect(() => {
+        // Listen for auth changes
+        const { data: { subscription }, } = supabase.auth.onAuthStateChange(async (_, session) => {
+            setSession(session);
+            setUser(session?.user ?? null);
+            if (session?.user) {
+                try {
+                    await fetchUserRole(session.user.id);
+                }
+                finally {
+                    setLoading(false);
+                }
+            }
+            else {
+                setIsAdmin(false);
+                setUserRole(null);
+                setLoading(false);
+            }
+        });
+        // Initial session load
+        const initialize = async () => {
+            try {
+                const { data: { session }, } = await withTimeout(supabase.auth.getSession(), AUTH_TIMEOUT_MS, "Session fetch timeout");
+                setSession(session);
+                setUser(session?.user ?? null);
+                if (session?.user) {
+                    await fetchUserRole(session.user.id);
+                }
+            }
+            catch (error) {
+                console.warn("Auth initialization fallback triggered:", error);
+                setSession(null);
+                setUser(null);
+                setIsAdmin(false);
+                setUserRole(null);
+            }
+            finally {
+                setLoading(false);
+            }
+        };
+        void initialize();
+        return () => subscription.unsubscribe();
+    }, [fetchUserRole]);
+    // 🔐 Sign In
+    const signIn = async (email, password) => {
+        const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+        if (error)
+            throw error;
+    };
+    // 📝 Sign Up
+    const signUp = async (email, password) => {
+        const { error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                emailRedirectTo: window.location.origin,
+            },
+        });
+        if (error)
+            throw error;
+    };
+    // 🚪 Sign Out (Fixed)
+    const signOut = async () => {
+        const { error } = await supabase.auth.signOut({
+            scope: "local", // 🔥 prevents 403 global logout error
+        });
+        if (error) {
+            console.error("Logout error:", error.message);
+            throw error;
+        }
+    };
+    return {
+        user,
+        session,
+        loading,
+        isAdmin,
+        userRole,
+        signIn,
+        signUp,
+        signOut,
+    };
+};

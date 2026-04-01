@@ -1,0 +1,2 @@
+// interfaces/admin.ts
+export {};

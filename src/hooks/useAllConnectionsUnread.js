@@ -1,0 +1,77 @@
+import { useEffect, useState, useCallback } from "react";
+import { useQueries } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+const UNREAD_KEY_PREFIX = "chat_last_viewed_";
+const hasSameUnreadCounts = (a, b) => {
+    const aKeys = Object.keys(a);
+    const bKeys = Object.keys(b);
+    if (aKeys.length !== bKeys.length)
+        return false;
+    for (const key of aKeys) {
+        if (a[key] !== b[key])
+            return false;
+    }
+    return true;
+};
+export const useAllConnectionsUnread = (connections = [], profileId) => {
+    const [unreadCounts, setUnreadCounts] = useState({});
+    const connectionIdsKey = connections.map((connection) => connection.id).join("|");
+    // Query messages for all connections in parallel
+    const messageQueries = useQueries({
+        queries: connections.map((connection) => ({
+            queryKey: ["chat", "unread", connection.id],
+            queryFn: async () => {
+                const { data, error } = await supabase
+                    .from("chat_messages")
+                    .select("id, sender_profile_id, created_at")
+                    .eq("connection_id", connection.id)
+                    .order("created_at", { ascending: false })
+                    .limit(50);
+                if (error)
+                    throw error;
+                return { connectionId: connection.id, messages: data || [] };
+            },
+            enabled: !!connection.id && !!profileId,
+            refetchInterval: 3000, // Poll every 3 seconds
+            staleTime: 0,
+        })),
+    });
+    const queryDataVersion = messageQueries
+        .map((query) => `${query.dataUpdatedAt}:${query.status}`)
+        .join("|");
+    // Calculate unread counts whenever messages update
+    useEffect(() => {
+        if (!profileId) {
+            setUnreadCounts((prev) => (Object.keys(prev).length > 0 ? {} : prev));
+            return;
+        }
+        const newCounts = {};
+        messageQueries.forEach((query) => {
+            if (query.data) {
+                const { connectionId, messages } = query.data;
+                const lastViewedKey = `${UNREAD_KEY_PREFIX}${connectionId}`;
+                const lastViewed = localStorage.getItem(lastViewedKey);
+                const lastViewedTime = lastViewed ? new Date(lastViewed).getTime() : 0;
+                const unreadCount = messages.filter((msg) => {
+                    const msgTime = new Date(msg.created_at).getTime();
+                    return msgTime > lastViewedTime && msg.sender_profile_id !== profileId;
+                }).length;
+                newCounts[connectionId] = unreadCount;
+            }
+        });
+        setUnreadCounts((prev) => (hasSameUnreadCounts(prev, newCounts) ? prev : newCounts));
+    }, [profileId, connectionIdsKey, queryDataVersion]);
+    // Mark messages as read when viewing a connection
+    const markAsRead = useCallback((connId) => {
+        const lastViewedKey = `${UNREAD_KEY_PREFIX}${connId}`;
+        localStorage.setItem(lastViewedKey, new Date().toISOString());
+        setUnreadCounts((prev) => ({
+            ...prev,
+            [connId]: 0,
+        }));
+    }, []);
+    // Get total unread count
+    const totalUnread = Object.values(unreadCounts).reduce((sum, count) => sum + count, 0);
+    const isLoading = messageQueries.some((q) => q.isLoading);
+    return { unreadCounts, markAsRead, totalUnread, isLoading };
+};
