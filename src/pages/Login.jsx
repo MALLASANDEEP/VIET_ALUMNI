@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { GraduationCap, Mail, Lock, Loader2, ArrowLeft, Linkedin } from "lucide-react";
+import { Mail, Lock, Loader2, ArrowLeft, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -118,16 +118,14 @@ const Login = () => {
               Back to Home
             </Link>
 
-            <div className="w-16 h-16 rounded-2xl bg-gold flex items-center justify-center mx-auto mb-4 shadow-lg">
-              <GraduationCap className="w-8 h-8 text-navy-dark"/>
-            </div>
+            <img src="/a/logo2.png" alt="Alumni Connect Logo" className="w-16 h-16 mx-auto mb-4 object-contain rounded-2xl shadow-lg"/>
 
             <CardTitle className="font-serif text-2xl">
-              Alumni Portal Login
+              Community Login
             </CardTitle>
 
             <CardDescription>
-              Our Pride. Our Network. Our Legacy.
+              Our Pride. Our Network. Our Legacy OF [VSPT].
             </CardDescription>
           </CardHeader>
 

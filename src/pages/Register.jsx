@@ -142,10 +142,11 @@ const Register = () => {
             </Link>
 
             <div className="w-16 h-16 rounded-2xl bg-gold flex items-center justify-center mx-auto mb-4">
-              <GraduationCap className="w-8 h-8 text-navy-dark"/>
+              <img src="/a/logo2.png" alt="Alumni Connect Logo" className="w-16 h-16 mx-auto mb-4 object-contain rounded-2xl shadow-lg"/>
+
             </div>
 
-            <CardTitle className="text-2xl font-serif">Join Alumni Portal</CardTitle>
+            <CardTitle className="text-2xl font-serif">Community Register</CardTitle>
             <CardDescription>Create your account to connect with our network</CardDescription>
           </CardHeader>
 
