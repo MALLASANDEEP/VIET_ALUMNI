@@ -8,7 +8,7 @@ if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error("Missing Supabase environment variables");
 }
 app.use(cors({
-    origin: true, // change if needed
+    origin: "https://viet-alumni.vercel.app", // change if needed
     credentials: true,
 }));
 app.use(express.json());
