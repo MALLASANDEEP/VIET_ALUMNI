@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, X, Linkedin, Building, ArrowRight, BadgeCheck } from "lucide-react";
 import { useAlumni } from "@/hooks/useAlumni";
@@ -21,7 +21,7 @@ const formatBranch = (dept) => {
     const normalized = dept.toUpperCase().trim();
     return branchMap[normalized] || normalized;
 };
-const AlumniCard = ({ alumni, onClick }) => (<motion.div whileHover={{ y: -8 }} onClick={() => onClick(alumni)} className="flex-shrink-0 w-72 bg-white rounded-[2rem] shadow-xl overflow-hidden border border-slate-100 mx-4 group cursor-pointer relative">
+const AlumniCard = React.memo(({ alumni, onClick }) => (<motion.div whileHover={{ y: -8 }} onClick={() => onClick(alumni)} className="flex-shrink-0 w-72 bg-white rounded-[2rem] shadow-xl overflow-hidden border border-slate-100 mx-4 group cursor-pointer relative">
     <div className="relative h-64 w-full overflow-hidden bg-slate-900">
       {alumni.photo_url ? (<img src={alumni.photo_url} alt={alumni.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"/>) : (<div className="w-full h-full flex items-center justify-center bg-slate-800 text-slate-500 text-6xl font-bold">
           {alumni.name.charAt(0)}
@@ -51,7 +51,9 @@ const AlumniCard = ({ alumni, onClick }) => (<motion.div whileHover={{ y: -8 }} 
       </div>
       <div className="absolute bottom-0 left-0 h-1.5 bg-indigo-600 w-0 group-hover:w-full transition-all duration-500"/>
     </div>
-  </motion.div>);
+  </motion.div>
+));
+
 const AlumniMarquee = () => {
     const { data, isLoading } = useAlumni();
     const [selectedAlumni, setSelectedAlumni] = useState(null);
@@ -74,7 +76,7 @@ const AlumniMarquee = () => {
     }, [selectedAlumni]);
     const dbAlumni = data?.alumni || [];
     const sectionTitle = data?.sectionTitle || "Distinguished Alumni";
-    const alumniData = [...dbAlumni].sort((a, b) => (Number(b.lpa) || 0) - (Number(a.lpa) || 0));
+    const alumniData = useMemo(() => [...dbAlumni].sort((a, b) => (Number(b.lpa) || 0) - (Number(a.lpa) || 0)), [dbAlumni]);
     if (isLoading) {
         return (<section className="py-20 bg-[#f8fafc] flex flex-col items-center justify-center">
         <Loader2 className="w-10 h-10 animate-spin text-indigo-600 mb-4"/>

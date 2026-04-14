@@ -8,6 +8,7 @@ import { useAcceptedConnections } from "@/hooks/useConnections";
 import { useConnectionMessages, useSendChatMessage, useDeleteChatMessage } from "@/hooks/useChat";
 import { useAllConnectionsUnread } from "@/hooks/useAllConnectionsUnread";
 import { toast } from "@/hooks/use-toast";
+import { formatWhatsAppDate, formatWhatsAppTime, groupMessagesByDate } from "@/lib/whatsappDateFormat";
 const ChatSection = ({ profile, unreadBadge = 0 }) => {
     const [selectedConnectionId, setSelectedConnectionId] = useState(null);
     const [draft, setDraft] = useState("");
@@ -111,29 +112,40 @@ const ChatSection = ({ profile, unreadBadge = 0 }) => {
                 <p className="font-semibold">{activeConnection?.other_profile.full_name || "Select connection"}</p>
               </div>
 
-              <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+              <div className="flex-1 overflow-y-auto space-y-3 pr-1">
                 {messagesLoading ? (<div className="flex justify-center py-8">
                     <Loader2 className="w-5 h-5 animate-spin text-gold"/>
                   </div>) : messages.length === 0 ? (<p className="text-sm text-muted-foreground text-center py-8">
                     Say hello and start the conversation.
-                  </p>) : (messages.map((message) => {
-                const mine = message.sender_profile_id === profile.id;
-                return (<div key={message.id} className={`flex ${mine ? "justify-end" : "justify-start"} group`}>
-                        <div className="flex items-end gap-2">
-                          <div className={`max-w-[80%] rounded-xl px-3 py-2 text-sm ${mine ? "bg-gold text-black" : "bg-muted"}`}>
-                            <p>{message.content}</p>
-                            <p className={`text-[10px] mt-1 ${mine ? "text-black/70" : "text-muted-foreground"}`}>
-                              {new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                            </p>
-                          </div>
-                          {mine && (<button onClick={() => handleDeleteMessage(message.id)} disabled={deleteMessage.isPending} className={`opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded ${deleteMessage.isPending
-                            ? "bg-destructive/20 cursor-not-allowed"
-                            : "hover:bg-destructive/20"}`} title="Delete message">
-                              {deleteMessage.isPending ? (<Loader2 className="w-4 h-4 text-destructive animate-spin"/>) : (<X className="w-4 h-4 text-destructive"/>)}
-                            </button>)}
-                        </div>
-                      </div>);
-            }))}
+                  </p>) : (Object.entries(groupMessagesByDate(messages)).map(([dateKey, dateMessages]) => (
+                  <div key={dateKey}>
+                    <div className="flex justify-center mb-3">
+                      <span className="text-[11px] text-muted-foreground bg-muted/40 px-3 py-1 rounded-full">
+                        {dateKey}
+                      </span>
+                    </div>
+                    <div className="space-y-2">
+                      {dateMessages.map((message) => {
+                        const mine = message.sender_profile_id === profile.id;
+                        return (<div key={message.id} className={`flex ${mine ? "justify-end" : "justify-start"} group`}>
+                            <div className="flex items-end gap-2">
+                              <div className={`max-w-[80%] rounded-xl px-3 py-2 text-sm ${mine ? "bg-gold text-black" : "bg-muted"}`}>
+                                <p>{message.content}</p>
+                                <p className={`text-[10px] mt-1 ${mine ? "text-black/70" : "text-muted-foreground"}`}>
+                                  {formatWhatsAppTime(message.created_at)}
+                                </p>
+                              </div>
+                              {mine && (<button onClick={() => handleDeleteMessage(message.id)} disabled={deleteMessage.isPending} className={`opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded ${deleteMessage.isPending
+                                ? "bg-destructive/20 cursor-not-allowed"
+                                : "hover:bg-destructive/20"}`} title="Delete message">
+                                  {deleteMessage.isPending ? (<Loader2 className="w-4 h-4 text-destructive animate-spin"/>) : (<X className="w-4 h-4 text-destructive"/>)}
+                                </button>)}
+                            </div>
+                          </div>);
+                      })}
+                    </div>
+                  </div>
+                )))}
               </div>
 
               <div className="pt-3 border-t mt-3 flex gap-2">

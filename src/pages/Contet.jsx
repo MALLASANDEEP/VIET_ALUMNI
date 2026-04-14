@@ -17,7 +17,7 @@ const ContentGalleryUI = () => {
             next();
         }, 5000);
         return () => clearInterval(timer);
-    }, [content, index]);
+    }, [content]);
     if (isLoading)
         return <div className="p-10 text-center">Loading...</div>;
     if (!content)

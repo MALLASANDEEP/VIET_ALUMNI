@@ -8,7 +8,7 @@ export const useGalleryHero = () => {
         queryFn: async () => {
             const { data, error } = await supabase
                 .from("gallery_hero")
-                .select("*")
+                .select("id, title, subtitle, bg_image, created_at, updated_at")
                 .limit(1);
             if (error)
                 throw new Error(error.message);

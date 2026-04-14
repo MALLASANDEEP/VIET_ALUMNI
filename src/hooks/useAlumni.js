@@ -19,8 +19,9 @@ export const useAlumni = () => {
             const [alumniRes, settingsRes, adminRolesRes] = await withTimeout(Promise.all([
                 supabase
                     .from("alumni")
-                    .select("*")
-                    .order("created_at", { ascending: false }),
+                    .select("id, name, batch, department, email, photo_url, current_position, company, linkedin_url, created_at, updated_at")
+                    .order("created_at", { ascending: false })
+                    .limit(100),
                 supabase
                     .from("site_settings")
                     .select("value")

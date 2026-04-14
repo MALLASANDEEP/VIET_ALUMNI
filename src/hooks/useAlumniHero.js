@@ -17,7 +17,7 @@ export const useAlumniHero = () => {
         queryFn: async () => {
             const { data, error } = await withTimeout(supabase
                 .from("alumni_hero")
-                .select("*")
+                .select("id, title, subtitle, bg_image, created_at, updated_at")
                 .single(), ALUMNI_HERO_TIMEOUT_MS, "Alumni hero request timed out");
             if (error)
                 throw new Error(error.message);

@@ -1,7 +1,17 @@
-import { useEffect, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 const HERO_TIMEOUT_MS = 8000;
-const HERO_CACHE_KEY = "hero-content-cache-v1";
+
+const withTimeout = (promise, timeoutMs, message) => {
+    return new Promise((resolve, reject) => {
+        const timer = window.setTimeout(() => reject(new Error(message)), timeoutMs);
+        promise
+            .then((value) => resolve(value))
+            .catch((error) => reject(error))
+            .finally(() => window.clearTimeout(timer));
+    });
+};
+
 const fallbackHero = {
     id: "fallback",
     badge_text: "VIET Alumni Network",
@@ -19,70 +29,48 @@ const fallbackHero = {
     },
 };
 export const useHero = () => {
-    const [hero, setHero] = useState(null);
-    const [loading, setLoading] = useState(true);
-    useEffect(() => {
-        let isMounted = true;
-        let hasCachedHero = false;
-        try {
-            const cached = localStorage.getItem(HERO_CACHE_KEY);
-            if (cached) {
-                const parsed = JSON.parse(cached);
-                setHero(parsed);
-                setLoading(false);
-                hasCachedHero = true;
-            }
-        }
-        catch {
-            // Ignore cache parse issues and continue with network fetch.
-        }
-        const fetchHero = async () => {
-            const controller = new AbortController();
-            const timeoutId = window.setTimeout(() => controller.abort(), HERO_TIMEOUT_MS);
-            try {
-                const { data, error } = await supabase
+    const queryClient = useQueryClient();
+
+    const query = useQuery({
+        queryKey: ["hero"],
+        queryFn: async () => {
+            const { data, error } = await withTimeout(
+                supabase
                     .from("hero_content")
-                    .select("*")
-                    .single()
-                    .abortSignal(controller.signal);
-                if (error) {
-                    throw error;
-                }
-                if (data && isMounted) {
-                    const nextHero = data;
-                    setHero(nextHero);
-                    localStorage.setItem(HERO_CACHE_KEY, JSON.stringify(nextHero));
-                }
-            }
-            catch (error) {
-                console.warn("Hero fetch fallback triggered:", error);
-                if (isMounted && !hasCachedHero) {
-                    setHero(fallbackHero);
-                }
-            }
-            finally {
-                window.clearTimeout(timeoutId);
-                if (isMounted) {
-                    setLoading(false);
-                }
-            }
-        };
-        void fetchHero();
-        return () => {
-            isMounted = false;
-        };
-    }, []);
-    const updateHero = async (updates) => {
-        if (!hero)
-            return;
-        const { error } = await supabase
-            .from("hero_content")
-            .update(updates)
-            .eq("id", hero.id);
-        if (!error) {
-            setHero({ ...hero, ...updates });
-            localStorage.setItem(HERO_CACHE_KEY, JSON.stringify({ ...hero, ...updates }));
-        }
+                    .select("id, badge_text, title, subtitle, primary_btn, secondary_btn, bg_type, bg_images, stats")
+                    .single(),
+                HERO_TIMEOUT_MS,
+                "Hero request timed out"
+            );
+            if (error) throw error;
+            return data || fallbackHero;
+        },
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        gcTime: 10 * 60 * 1000, // 10 minutes
+        refetchOnWindowFocus: false,
+        retry: 1,
+    });
+
+    const updateHero = useMutation({
+        mutationFn: async (updates) => {
+            const { data, error } = await supabase
+                .from("hero_content")
+                .update(updates)
+                .eq("id", query.data?.id)
+                .select()
+                .single();
+            if (error) throw error;
+            return data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["hero"] });
+        },
+    });
+
+    return {
+        hero: query.data,
+        loading: query.isLoading,
+        error: query.error,
+        updateHero: updateHero.mutate,
     };
-    return { hero, loading, updateHero };
 };
